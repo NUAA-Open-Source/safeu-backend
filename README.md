@@ -2,9 +2,11 @@
 
 伏羲后端仓库。
 
+> README for developers.
+
 ## Programming Language
 
-编程语言为 `[Golang](https://github.com/golang/go)` ，使用 `[govendor](https://github.com/kardianos/govendor)` 作为包管理工具，提交的代码需要使用 `go fmt` 进行格式化。为了开发维护方便，各位同学在编写代码时请注意起名规范及注释编写。该项目中变量命名使用 [Camel-Case](https://zh.wikipedia.org/wiki/%E9%A7%9D%E5%B3%B0%E5%BC%8F%E5%A4%A7%E5%B0%8F%E5%AF%AB)，并建议使用 `JetBrains` 公司的 `GoLand` IDE 进行开发。
+编程语言为 [`Golang`](https://github.com/golang/go) ，使用 [`govendor`](https://github.com/kardianos/govendor) 作为包管理工具，提交的代码需要使用 `gofmt` 进行格式化。为了开发维护方便，各位同学在编写代码时请注意起名规范及注释编写。该项目中变量命名使用 [Camel-Case](https://zh.wikipedia.org/wiki/%E9%A7%9D%E5%B3%B0%E5%BC%8F%E5%A4%A7%E5%B0%8F%E5%AF%AB)，并建议使用 `JetBrains` 公司的 `GoLand` IDE 进行开发。
 
 ## Issue Conducts
 
@@ -12,7 +14,7 @@
 
 ## License
 
-该项目采用 `[Apache2.0](https://choosealicense.com/licenses/apache-2.0/)` 许可证。
+该项目采用 [`Apache2.0`](https://choosealicense.com/licenses/apache-2.0/) 许可证。
 
 ```
    Copyright 2019 A2OS SafeU Dev Team

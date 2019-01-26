@@ -1,3 +1,6 @@
+# Ignore GoLand config files
+.idea/
+
 # Ignore vendor package files
 vendor/*
 !vendor/vendor.json
