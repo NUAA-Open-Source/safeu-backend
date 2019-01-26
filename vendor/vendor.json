@@ -1,0 +1,13 @@
+{
+    "comment": "",
+    "ignore": "test",
+    "package": [{
+        "checksumSHA1": "90S9sFqcIo/uuwQzz1t/wYs7GEs=",
+        "path": "github.com/gin-gonic/gin",
+        "revision": "b869fe1415e4b9eb52f247441830d502aece2d4d",
+        "revisionTime": "2018-08-14T08:58:52Z",
+        "version": "v1.3",
+        "versionExact": "v1.3.0"
+    }],
+    "rootPath": "a2os/safeu-backend"
+}
