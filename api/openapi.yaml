@@ -1,0 +1,235 @@
+openapi: 3.0.0
+info:
+  title: A2OS SafeU
+  description: |
+    A2OS SafeU 项目 API 文档。
+  contact:
+    email: a2os-general@googlegroups.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.0.1
+externalDocs:
+  description: Find out more about A2OS
+  url: https://a2os.club
+tags:
+- name: item
+  description: Items operations
+- name: validation
+  description: Validation operations
+paths:
+  /item:
+    post:
+      tags:
+        - item
+      summary: 上传新文件
+      operationId: uploadItem
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                region:
+                  description: 存储地域 / bucket 值
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                example:
+                  token: xxxxxxxxxxxxxxxxxxxx
+        '405':
+          description: Invalid input
+  /item/{retrieveCode}:
+    put:
+      tags:
+        - item
+      summary: 编辑文件提取信息
+      operationId: editItem
+      parameters:
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                re_code:
+                  type: string
+                  description: 提取码
+                down_count:
+                  type: integer
+                  format: int32
+                  description: 可下载次数
+                duration:
+                  type: string
+                  format: date-time
+                  description: 存储时长
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ItemGroup'
+        '405':
+          description: Invalid input
+    post:
+      tags:
+        - item
+      summary: 下载文件
+      operationId: downloadItem
+      parameters:
+        - name: token
+          in: header
+          description: 临时认证口令
+          style: simple
+          required: true
+          schema:
+            type: string
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/ItemGroup'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: 下载链接
+        # TODO: 补充更多 HTTP 状态码
+  /validation/{retrieveCode}:
+    post:
+      tags:
+        - validation
+      summary: 提取码认证接口
+      operationId: validateRC
+      parameters:
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+         'application/json':
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: 文件提取密码
+      responses:
+        '200':
+          description: Successful validation
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: 临时认证口令
+                  items:
+                    $ref: '#/components/schemas/ItemGroup'
+        '401':
+          description: Unauthorized
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 需要密码 / 密码认证失败
+        '404':
+          description: Not Found
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 无法通过该提取码找到文件
+
+components:
+  schemas:
+    Item:
+      type: object
+      description: 文件
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: 存储单位 UUID 号
+        original_name:
+          type: string
+          description: 文件原名
+        host:
+          type: string
+          description: 存储后端的 bucket 记录
+        re_code:
+          type: string
+          description: 提取码
+        is_public:
+          type: boolean
+          description: 是否公有
+        is_group:
+          type: boolean
+          description: 是否在一个文件组中
+        group_name:
+          type: string
+          description: 文件组组名
+        password:
+          type: string
+          description: 私有文件[组]的密码
+        down_count:
+          type: integer
+          format: int32
+          description: 可下载次数
+        duration:
+          type: string
+          format: date-time
+          description: 存储时长
+        created_date:
+          type: string
+          format: date-time
+          description: 最初生成时间
+        last_updated:
+          type: string
+          format: date-time
+          description: 最后更新时间
+    ItemGroup:
+      type: array
+      items:
+        $ref: '#/components/schemas/Item'
+      description: 文件组
