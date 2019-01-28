@@ -213,6 +213,9 @@ components:
         host:
           type: string
           description: 存储后端的 bucket 记录
+        type:
+          type: string
+          description: 文件类型
         re_code:
           type: string
           description: 提取码
@@ -222,9 +225,9 @@ components:
         is_group:
           type: boolean
           description: 是否在一个文件组中
-        group_name:
-          type: string
-          description: 文件组组名
+        # group_name:
+        #   type: string
+        #   description: 文件组组名
         password:
           type: string
           description: 私有文件[组]的密码
@@ -236,6 +239,10 @@ components:
           type: string
           format: date-time
           description: 存储时长
+        status:
+          type: integer
+          format: int32
+          description: 文件状态（正常，异常，已删除）
         created_date:
           type: string
           format: date-time
