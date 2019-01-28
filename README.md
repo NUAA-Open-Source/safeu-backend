@@ -20,7 +20,7 @@ Online Documentation: https://app.swaggerhub.com/apis/a2os/safeu
 
 ## License
 
-该项目采用 [`Apache2.0`](https://choosealicense.com/licenses/apache-2.0/) 许可证。
+该项目采用 [`Apache 2.0`](LICENSE) 许可证。
 
 ```
    Copyright 2019 A2OS SafeU Dev Team
