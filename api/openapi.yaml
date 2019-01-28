@@ -8,7 +8,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 0.0.1
+  version: "0.1.0"
 externalDocs:
   description: Find out more about A2OS
   url: https://a2os.club
@@ -40,12 +40,7 @@ paths:
           content:
             'application/json':
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                example:
-                  token: xxxxxxxxxxxxxxxxxxxx
+                $ref: '#/components/schemas/ItemGroup'
         '405':
           description: Invalid input
   /item/{retrieveCode}:
@@ -78,6 +73,13 @@ paths:
                   type: string
                   format: date-time
                   description: 存储时长
+                is_public:
+                  type: boolean
+                  description: 文件是否公有
+                password:
+                  type: string
+                  format: password
+                  description: 文件提取密码
       responses:
         '200':
           description: Successful operation
