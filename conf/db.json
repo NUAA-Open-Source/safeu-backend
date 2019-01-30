@@ -1,0 +1,12 @@
+{
+  "Master": {
+    "User": "root",
+    "Pass": "root",
+    "Host": "127.0.0.1",
+    "Port": "3306",
+    "Database": "safeu",
+    "MaxIdleConns": 30,
+    "MaxOpenConns": 100,
+    "Debug": false
+  }
+}
