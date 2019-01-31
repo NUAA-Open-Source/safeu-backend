@@ -48,7 +48,7 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		fmt.Println("Get DBConfig From File Err:", err)
 	}
-	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Database))
+	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@/%s?charset=utf8mb4&parseTime=True&loc=Local", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Database))
 	if err != nil {
 		fmt.Println("Gorm Open DB Err: ", err)
 	}
