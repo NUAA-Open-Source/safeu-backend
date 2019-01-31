@@ -1,13 +1,13 @@
 package item
 
 import (
-	"time"
+	"github.com/jinzhu/gorm"
 )
 
 type Item struct {
-	ID           uint   `gorm:"AUTO_INCREMENT"`
+	gorm.Model
 	Status       int    `gorm:"not null"`
-	Name         string `gorm:"primary_key"`
+	Name         string `gorm:"index"`
 	OriginalName string `gorm:"not null"`
 	Host         string
 	ReCode       string `gorm:"index"`
@@ -16,7 +16,4 @@ type Item struct {
 	Type         string
 	IsPublic     bool
 	IsGroup      bool
-	ExpiredTime  time.Time
-	CreateTime   time.Time
-	UpdatedTime  time.Time
 }
