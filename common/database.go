@@ -3,9 +3,10 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"io/ioutil"
 )
 
 type Db struct {

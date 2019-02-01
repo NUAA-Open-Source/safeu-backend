@@ -24,6 +24,7 @@ import (
 
 func Migrate(db *gorm.DB) {
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 auto_increment=1").AutoMigrate(&item.Item{})
+	db.AutoMigrate(&common.Config{})
 }
 func main() {
 	db := common.InitDB()

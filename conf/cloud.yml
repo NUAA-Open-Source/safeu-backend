@@ -1,0 +1,20 @@
+aliyun:
+  - accountid: account1
+    accesskey: account1ak
+    accesskeysecret: account1as
+    endpoint:
+      - endpointid: account1endpoint1
+        base: account1endpoint1base
+        bucket:
+          - bucketid: account1endpoint1basebucket1
+            name: 999
+          - bucketid: account1endpoint1basebucket2
+            name: 998
+      - endpointid: account1endpoint2
+        base: account1endpoint2base
+  - accountid: account2
+    accesskey: account2ak
+    accesskeysecret: account2as
+    endpoint:
+      - endpointid: account2endpoint1
+        base: account2endpoint1base
