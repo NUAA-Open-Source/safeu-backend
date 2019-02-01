@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type CloudConfig struct {
+type CloudConfiguration struct {
 	Aliyun []AliyunAccount
 }
 type AliyunAccount struct {
@@ -31,25 +31,44 @@ type Config struct {
 	Content string `sql:"type:text"`
 }
 
-func (c *CloudConfig) GetCloudConfigFromFile() *CloudConfig {
+func GetCloudConfig() (c *CloudConfiguration, err error) {
+	c, err = GetCloudConfigFromDB()
+	if err != nil {
+		log.Println("GetCloudConfigFromDB Fail", err)
+		c, err = GetCloudConfigFromFile()
+		if err != nil {
+			log.Println("GetCloudConfigFromFile Fail", err)
+			return c, err
+		}
+		return c, nil
+	}
+	return c, nil
+}
+func GetCloudConfigFromFile() (*CloudConfiguration, error) {
+	var cloudConfig CloudConfiguration
 	yamlFile, err := ioutil.ReadFile(CloudConfigFile)
 	if err != nil {
 		log.Println("GetCloudConfigFromFile YamlFile Read Fail", err)
+		return &cloudConfig, err
 	}
-	err = yaml.Unmarshal(yamlFile, &c)
+	err = yaml.Unmarshal(yamlFile, &cloudConfig)
 	if err != nil {
 		log.Println("Yaml Unmarshal Fail", err)
+		return &cloudConfig, err
 	}
-	return c
+	return &cloudConfig, nil
 }
 
-func (c *CloudConfig) GetCloudConfigFromDB() *CloudConfig {
+func GetCloudConfigFromDB() (*CloudConfiguration, error) {
+	var cloudConfig CloudConfiguration
+
 	db := GetDB()
 	var conf Config
 	db.Where("name = ?", CloudConfigDBName).First(&conf)
-	err := yaml.Unmarshal([]byte(conf.Content), &c)
+	err := yaml.Unmarshal([]byte(conf.Content), &cloudConfig)
 	if err != nil {
 		log.Println("GetCloudConfigFromDB Yaml Unmarshal Fail", err)
+		return &cloudConfig, err
 	}
-	return c
+	return &cloudConfig, nil
 }
