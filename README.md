@@ -8,7 +8,46 @@
 
 编程语言为 [`Golang`](https://github.com/golang/go) ，使用 [`govendor`](https://github.com/kardianos/govendor) 作为包管理工具，提交的代码需要使用 `gofmt` 进行格式化。为了开发维护方便，各位同学在编写代码时请注意起名规范及注释编写。该项目中变量命名使用 [Camel-Case](https://zh.wikipedia.org/wiki/%E9%A7%9D%E5%B3%B0%E5%BC%8F%E5%A4%A7%E5%B0%8F%E5%AF%AB)，并建议使用 `JetBrains` 公司的 `GoLand` IDE 进行开发。
 
-## Code of  Conducts
+## Config
+
+### Database
+
+在 `MySQL / MariaDB` 中新建 `safeu` 数据库：
+
+```sql
+CREATE DATABASE safeu;
+```
+
+在 `conf/` 下新建 `db.json` 文件，写入以下配置信息：
+
+```json
+{
+  "Master": {
+    "User": "your_user_name",
+    "Pass": "your_password",
+    "Host": "127.0.0.1",
+    "Port": "3306",
+    "Database": "safeu",
+    "MaxIdleConns": 30,
+    "MaxOpenConns": 100,
+    "Debug": false
+  }
+}
+```
+
+## Quick Start
+
+```bash
+$ git clone https://github.com/Triple-Z/safeu-backend.git
+$ cd safeu-backend/
+$ go get -u github.com/kardianos/govendor
+$ govendor sync
+$ go run main.go
+```
+
+> 要事先做好数据库的建立和配置。
+
+## Code of Conducts
 
 ## API Documentation
 
