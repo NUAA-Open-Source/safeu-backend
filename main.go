@@ -15,6 +15,8 @@
 package main
 
 import (
+	"log"
+
 	"a2os/safeu-backend/common"
 	"a2os/safeu-backend/item"
 
@@ -24,11 +26,22 @@ import (
 
 func Migrate(db *gorm.DB) {
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 auto_increment=1").AutoMigrate(&item.Item{})
+	db.AutoMigrate(&common.Config{})
 }
-func main() {
+func init() {
+	//DB init
 	db := common.InitDB()
 	Migrate(db)
-	defer db.Close()
+	//defer db.Close()
+	//Read Config
+	conf, err := common.GetCloudConfig()
+	if err != nil {
+		log.Println("GetCloudConfig Err", err)
+	}
+	common.CloudConfig = conf
+}
+
+func main() {
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -36,5 +49,8 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	v1 := r.Group("/api")
+	item.UploadRegister(v1.Group("/upload"))
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
