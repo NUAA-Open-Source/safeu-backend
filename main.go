@@ -57,6 +57,7 @@ func main() {
 	{
 		item.UploadRegister(v1.Group("/upload"))
 
+		v1.POST("/validation/:retrieveCode", validation.Validation)
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080
