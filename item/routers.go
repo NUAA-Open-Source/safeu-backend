@@ -14,17 +14,6 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func UploadRegister(router *gin.RouterGroup) {
-	router.GET("/policy", GetPolicyToken)    //鉴权
-	router.POST("/callback", UploadCallBack) //回调
-}
-
-func GetPolicyToken(c *gin.Context) {
-	//TODO:错误处理
-	response := get_policy_token()
-	c.String(http.StatusOK, response)
-}
-
 type FileInfo struct {
 	Bucket   string `json:"bucket"`
 	Object   string `json:"object"`
@@ -34,6 +23,60 @@ type FileInfo struct {
 	Height   int    `json:"height"`
 	Width    int    `json:"width"`
 	Format   string `json:"format"`
+}
+
+type FinishedFiles struct {
+	Files []uuid.UUID `json:"files"`
+}
+
+func UploadRegister(router *gin.RouterGroup) {
+	router.GET("/policy", GetPolicyToken)    //鉴权
+	router.POST("/callback", UploadCallBack) //回调
+	router.POST("/finish", FinishUpload)     //结束
+}
+
+func GetPolicyToken(c *gin.Context) {
+	//TODO:错误处理
+	response := get_policy_token()
+	c.String(http.StatusOK, response)
+}
+
+func FinishUpload(c *gin.Context) {
+	//TODO：本函数待优化
+	var finishedFiles FinishedFiles
+	db := common.GetDB()
+	err := c.BindJSON(&finishedFiles)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err,
+		})
+		return
+	}
+	if finishedFiles.Files == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Parameter error",
+		})
+		return
+	}
+
+	// 数据库中存在满足uuid且状态为"上传完成"，返回原来生成的提取码
+	var item Item
+	if !db.Where("name = ? AND status = ?", finishedFiles.Files[0], common.UPLOAD_FINISHED).First(&item).RecordNotFound() {
+		c.JSON(http.StatusOK, gin.H{
+			"recode": item.ReCode,
+		})
+		return
+	}
+	// 存在满足条件uuid且状态为"上传阶段"，生成新的提取码
+	reCode := common.RandStringBytesMaskImprSrc(common.ReCodeLength)
+	for _, value := range finishedFiles.Files {
+		fmt.Println(value)
+		db.Model(&Item{}).Where("name = ? AND status = ?", value, common.UPLOAD_BEGIN).Update(map[string]interface{}{"re_code": reCode, "status": common.UPLOAD_FINISHED})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"recode": reCode,
+	})
 }
 
 func UploadCallBack(c *gin.Context) {
@@ -84,7 +127,7 @@ func UploadCallBack(c *gin.Context) {
 		db.NewRecord(item)
 		db.Create(&item)
 		c.JSON(http.StatusOK, gin.H{
-			"message": "ok",
+			"uuid": u,
 		})
 		return
 	} else {
