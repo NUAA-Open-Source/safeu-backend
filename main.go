@@ -57,6 +57,7 @@ func main() {
 	{
 		item.UploadRegister(v1.Group("/upload"))
 
+		v1.POST("/item/:retrieveCode", item.DownloadItems)
 		v1.POST("/validation/:retrieveCode", validation.Validation)
 	}
 
