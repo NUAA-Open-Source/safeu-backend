@@ -1,15 +1,15 @@
 package validation
 
 import (
-	"net/http"
-	"time"
-	"fmt"
-	"strconv"
-	"io"
-	"log"
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
 
 	"a2os/safeu-backend/common"
 	"a2os/safeu-backend/item"
