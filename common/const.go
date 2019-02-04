@@ -20,3 +20,7 @@ const (
 	FILE_ACTIVE     StatusCode = 3
 	FILE_DELETE     StatusCode = 4
 )
+
+const (
+	TOKEN_VALID_MINUTES int32 = 15 // Token 有效时长
+)

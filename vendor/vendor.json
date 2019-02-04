@@ -51,6 +51,12 @@
 			"path": "github.com/pilu/fresh/runner",
 			"revision": "9c0092493eff2825c3abf64e087b3383dec939c3",
 			"revisionTime": "2017-03-01T14:27:41Z"
+		},
+		{
+			"checksumSHA1": "Tutue3nEgM/87jitUcYv6ODwyNE=",
+			"path": "github.com/satori/go.uuid",
+			"revision": "b2ce2384e17bbe0c6d34077efa39dbab3e09123b",
+			"revisionTime": "2018-10-28T12:50:25Z"
 		}
 	],
 	"rootPath": "a2os/safeu-backend"
