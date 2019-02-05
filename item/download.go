@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"a2os/safeu-backend/common"
-	"a2os/safeu-backend/validation"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +29,7 @@ func DownloadItems (c *gin.Context) {
 
 	log.Println(c.ClientIP(), " Get client token ", clientToken)
 
-	var tokenRecord validation.Token
+	var tokenRecord Token
 	if db.Where("token = ?", clientToken).First(&tokenRecord).RecordNotFound() {
 		// 无法找到该 token
 		c.JSON(http.StatusNotFound, gin.H{

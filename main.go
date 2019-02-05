@@ -19,7 +19,6 @@ import (
 
 	"a2os/safeu-backend/item"
 	"a2os/safeu-backend/common"
-	"a2os/safeu-backend/validation"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -28,7 +27,7 @@ import (
 func Migrate(db *gorm.DB) {
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 auto_increment=1").AutoMigrate(&item.Item{})
 	db.AutoMigrate(&common.Config{})
-	db.AutoMigrate(&validation.Token{})
+	db.AutoMigrate(&item.Token{})
 }
 func init() {
 	//DB init
@@ -58,7 +57,7 @@ func main() {
 		item.UploadRegister(v1.Group("/upload"))
 
 		v1.POST("/item/:retrieveCode", item.DownloadItems)
-		v1.POST("/validation/:retrieveCode", validation.Validation)
+		v1.POST("/validation/:retrieveCode", item.Validation)
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080
