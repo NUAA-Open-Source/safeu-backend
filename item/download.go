@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func DownloadItems (c *gin.Context) {
+func DownloadItems(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
 	log.Println(c.ClientIP(), " Received download request for ", retrieveCode, " resources")
 
@@ -19,7 +19,7 @@ func DownloadItems (c *gin.Context) {
 	// 检查并更新 Token 有效
 
 	clientToken := c.Request.Header.Get("Token")
-	if len(clientToken) == 0 {  // if not get the token
+	if len(clientToken) == 0 { // if not get the token
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "Cannot get the token",
 		})

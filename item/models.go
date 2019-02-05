@@ -1,8 +1,9 @@
 package item
 
 import (
-	"github.com/jinzhu/gorm"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 type Item struct {
@@ -26,4 +27,3 @@ type Token struct {
 	Valid        bool
 	ExpiredAt    time.Time `gorm:"NOT NULL"`
 }
-

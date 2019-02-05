@@ -17,8 +17,8 @@ package main
 import (
 	"log"
 
-	"a2os/safeu-backend/item"
 	"a2os/safeu-backend/common"
+	"a2os/safeu-backend/item"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
