@@ -1,4 +1,4 @@
-package validation
+package item
 
 import (
 	"crypto/md5"
@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"a2os/safeu-backend/common"
-	"a2os/safeu-backend/item"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,7 +38,7 @@ func Validation(c *gin.Context) {
 	db := common.GetDB()
 
 	// 是否存在文件
-	var curItem item.Item
+	var curItem Item
 	if db.Where("re_code = ? AND (status = ? OR status = ?)", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE).First(&curItem).RecordNotFound() {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "Cannot find resource via this retrieve code.",
@@ -52,7 +51,7 @@ func Validation(c *gin.Context) {
 	if curItem.IsPublic {
 		// 文件公有，生成 Token 并返回文件列表
 		token := GenerateTokenByMd5()
-		var itemList []item.Item
+		var itemList []Item
 		db.Where("re_code = ? AND (status = ? OR status = ?)", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE).Find(&itemList)
 
 		tokenRecord := Token{Token: token, RetrieveCode: retrieveCode, Valid: true, ExpiredAt: time.Now().Add((time.Duration)(common.TOKEN_VALID_MINUTES) * time.Minute)} // Token 有效期
@@ -98,7 +97,7 @@ func Validation(c *gin.Context) {
 
 	// 密码正确生成 Token 并返回文件列表
 	token := GenerateTokenByMd5()
-	var itemList []item.Item
+	var itemList []Item
 	db.Where("re_code = ? AND (status = ? OR status = ?)", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE).Find(&itemList)
 
 	tokenRecord := Token{Token: token, RetrieveCode: retrieveCode, Valid: true, ExpiredAt: time.Now().Add((time.Duration)(common.TOKEN_VALID_MINUTES) * time.Minute)} // Token 有效期
