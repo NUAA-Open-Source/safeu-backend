@@ -39,6 +39,15 @@ func DownloadItems(c *gin.Context) {
 		return
 	}
 
+	// 检查 token 是否失效
+	if !tokenRecord.Valid {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Token invalid",
+		})
+		log.Println(c.ClientIP(), " Expired token ", clientToken)
+		return
+	}
+
 	// 检查 token 是否过期
 	tokenExpiredAt := tokenRecord.ExpiredAt
 	if tokenExpiredAt.Before(time.Now()) {
