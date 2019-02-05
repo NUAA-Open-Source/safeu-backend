@@ -1,13 +1,14 @@
 package item
 
 import (
+	"log"
+	"time"
+	"net/http"
+
 	"a2os/safeu-backend/common"
+	"a2os/safeu-backend/validation"
 
 	"github.com/gin-gonic/gin"
-	"log"
-	"a2os/safeu-backend/validation"
-	"net/http"
-	"time"
 )
 
 func DownloadItems (c *gin.Context) {
@@ -73,7 +74,11 @@ func DownloadItems (c *gin.Context) {
 		return
 	}
 
-
+	// FIXME: 暂时不支持多文件下载
+	c.JSON(http.StatusNotAcceptable, gin.H{
+		"error": "Sorry, we haven't support this type service yet",
+	})
+	return
 
 	// TODO: 多文件 zip 打包
 	// TODO: 多文件下载
