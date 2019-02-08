@@ -1,3 +1,6 @@
+# Ignore binary file
+safeu-backend
+
 # Ignore database config file
 conf/db.json
 

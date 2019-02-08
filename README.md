@@ -47,6 +47,15 @@ $ go run main.go
 
 > 要事先做好数据库的建立和配置。
 
+## Scripts
+
+所有的脚本文件应在脚本目录下运行。如 `scripts/build-docker-images.sh` 应这样运行：
+
+```bash
+$ cd scripts
+$./build-docker-images.sh
+```
+
 ## Code of Conducts
 
 ## API Documentation
