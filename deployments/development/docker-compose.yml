@@ -2,10 +2,10 @@ version: '3'
 services:
   web:
     build:
-      context: ../../..
-      dockerfile: ../../../build/package/safeu-backend-dev/Dockerfile
+      context: ../..
+      dockerfile: ././build/package/safeu-backend-dev/Dockerfile
     volumes:
-      - ../../..:$GOPATH/src/a2os/safeu-backend/
+      - ../..:$GOPATH/src/a2os/safeu-backend/
     ports:
       - "8080:8080"
     networks:

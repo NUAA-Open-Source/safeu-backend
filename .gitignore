@@ -11,8 +11,6 @@ conf/db.json
 tmp/
 
 # Ignore vendor package files
-vendor/*
-!vendor/vendor.json
 
 # Binaries for programs and plugins
 *.exe
