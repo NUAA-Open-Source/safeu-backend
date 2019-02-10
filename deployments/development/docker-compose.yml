@@ -13,11 +13,14 @@ services:
     depends_on:
       - db
       - redis
+    restart: always
   db:
     environment:
       - MYSQL_ROOT_PASSWORD=safeu
       - MYSQL_DATABASE=safeu
     image: mariadb:10.3
+    volumes:
+      - ../../db-data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:

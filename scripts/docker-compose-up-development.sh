@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p ../db-data
+
 echo "on daemon ?(y/n) "
 read isD
 
