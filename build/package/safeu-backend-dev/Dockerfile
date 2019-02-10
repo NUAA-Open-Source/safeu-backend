@@ -5,7 +5,7 @@ MAINTAINER TripleZ "me@triplez.cn"
 WORKDIR $GOPATH/src/a2os/safeu-backend
 ADD . $GOPATH/src/a2os/safeu-backend/
 
-RUN cat vendor/vendor.json
+COPY conf/db.example.json $GOPATH/src/a2os/safeu-backend/conf/db.json
 
 # Add dependencies
 RUN go get -u github.com/kardianos/govendor && go get github.com/pilu/fresh && govendor sync
