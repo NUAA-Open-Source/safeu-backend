@@ -3,20 +3,29 @@ services:
   web:
     build:
       context: ../..
-      dockerfile: ././build/package/safeu-backend-dev/Dockerfile
+      dockerfile: ././build/package/safeu-backend-dev/Dockerfile-compose
     volumes:
       - ../..:$GOPATH/src/a2os/safeu-backend/
     ports:
       - "8080:8080"
     networks:
       - webnet
+    depends_on:
+      - db
+      - redis
   db:
     environment:
       - MYSQL_ROOT_PASSWORD=safeu
       - MYSQL_DATABASE=safeu
-    image: mariadb
+    image: mariadb:10.3
     ports:
       - "3306:3306"
+    networks:
+      - webnet
+  redis:
+    image: redis:5.0.3-alpine
+    ports:
+      - "6379:6379"
     networks:
       - webnet
 

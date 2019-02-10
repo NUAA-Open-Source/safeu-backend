@@ -8,5 +8,10 @@
     "MaxIdleConns": 30,
     "MaxOpenConns": 100,
     "Debug": false
+  },
+  "Redis": {
+    "Host": "redis",
+    "Port": "6379",
+    "Pass": ""
   }
 }
