@@ -33,6 +33,9 @@ func init() {
 	//DB init
 	db := common.InitDB()
 	Migrate(db)
+	//Redis init
+	//初始化 UserToken Redis连接
+	common.UserTokenRedisClient = common.InitRedis(common.USER_TOKEN)
 	//defer db.Close()
 	//Read Config
 	conf, err := common.GetCloudConfig()
@@ -55,7 +58,6 @@ func main() {
 	v1 := api.Group("/v1")
 	{
 		item.UploadRegister(v1.Group("/upload"))
-
 		v1.POST("/item/:retrieveCode", item.DownloadItems)
 		v1.POST("/validation/:retrieveCode", item.Validation)
 	}

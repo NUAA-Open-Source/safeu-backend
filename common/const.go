@@ -24,3 +24,9 @@ const (
 const (
 	TOKEN_VALID_MINUTES int32 = 15 // Token 有效时长
 )
+
+// RedisDB
+const (
+	USER_TOKEN = iota // 0
+	TASK_QUEUE        //1
+)
