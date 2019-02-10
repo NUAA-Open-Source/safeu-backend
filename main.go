@@ -58,6 +58,9 @@ func main() {
 	v1 := api.Group("/v1")
 	{
 		item.UploadRegister(v1.Group("/upload"))
+		v1.POST("/password/:retrieveCode", item.ChangePassword)
+		v1.POST("/recode/:retrieveCode", item.ChangeRecode)
+		v1.POST("/downCount/:retrieveCode", item.ChangeDownCount)
 		v1.POST("/item/:retrieveCode", item.DownloadItems)
 		v1.POST("/validation/:retrieveCode", item.Validation)
 	}

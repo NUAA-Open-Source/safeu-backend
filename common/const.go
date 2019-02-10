@@ -10,6 +10,7 @@ const (
 	CloudConfigDBName     = "cloud"
 	AliyunOSSCallbackBody = `"bucket":${bucket},"object":${object},"etag":${etag},"size":${size},"mimeType":${mimeType},"height":${imageInfo.height},"width":${imageInfo.width},"format":${imageInfo.format}`
 	ReCodeLength          = 4
+	UserTokenLength       = 32
 )
 
 // 文件状态码

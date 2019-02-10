@@ -70,12 +70,19 @@ func FinishUpload(c *gin.Context) {
 	}
 	// 存在满足条件uuid且状态为"上传阶段"，生成新的提取码
 	reCode := common.RandStringBytesMaskImprSrc(common.ReCodeLength)
+	var files []string
 	for _, value := range finishedFiles.Files {
 		fmt.Println(value)
+		files = append(files, value.String())
 		db.Model(&Item{}).Where("name = ? AND status = ?", value, common.UPLOAD_BEGIN).Update(map[string]interface{}{"re_code": reCode, "status": common.UPLOAD_FINISHED})
 	}
+	// 将用户识别码推入Redis
+	tokenRedisClient := common.GetUserTokenRedisClient()
+	owner := common.RandStringBytesMaskImprSrc(common.UserTokenLength)
+	tokenRedisClient.SAdd(owner, files)
 	c.JSON(http.StatusOK, gin.H{
 		"recode": reCode,
+		"owner":  owner,
 	})
 }
 
