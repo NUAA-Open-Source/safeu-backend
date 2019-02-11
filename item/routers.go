@@ -129,7 +129,7 @@ func UploadCallBack(c *gin.Context) {
 		// TODO:完善此处
 		host := fmt.Sprintf("https://%s.%s/%s", common.CloudConfig.Aliyun[0].EndPoint[0].Bucket[0].Name, common.CloudConfig.Aliyun[0].EndPoint[0].Base, fileInfo.Object)
 		u := uuid.Must(uuid.NewV4())
-		item := Item{Name: u.String(), Host: host, Status: 0, OriginalName: fileInfo.Object}
+		item := Item{Name: u.String(), Host: host, Status: 0, OriginalName: fileInfo.Object[23:]}
 		db := common.GetDB()
 		db.NewRecord(item)
 		db.Create(&item)

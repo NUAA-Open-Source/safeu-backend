@@ -19,3 +19,7 @@ aliyun:
     endpoint:
       - endpointid: account2endpoint1
         base: account2endpoint1base
+
+server:
+  - serverid: 0
+    servercallback: "http://120.24.73.105:8080/api/upload/callback"
