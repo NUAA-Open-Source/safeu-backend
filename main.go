@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"a2os/safeu-backend/common"
@@ -33,6 +34,9 @@ func init() {
 	//DB init
 	db := common.InitDB()
 	Migrate(db)
+	//Redis init
+	//初始化 UserToken Redis连接
+	common.UserTokenRedisClient = common.InitRedis(common.USER_TOKEN)
 	//defer db.Close()
 	//Read Config
 	conf, err := common.GetCloudConfig()
@@ -40,6 +44,9 @@ func init() {
 		log.Println("GetCloudConfig Err", err)
 	}
 	common.CloudConfig = conf
+	log.Println(fmt.Sprintf("Read Cloud Config :%v",conf.Aliyun))
+	log.Println(fmt.Sprintf("Read Server Config :%v",conf.Server))
+
 }
 
 func main() {
@@ -55,7 +62,9 @@ func main() {
 	v1 := api.Group("/v1")
 	{
 		item.UploadRegister(v1.Group("/upload"))
-
+		v1.POST("/password/:retrieveCode", item.ChangePassword)
+		v1.POST("/recode/:retrieveCode", item.ChangeRecode)
+		v1.POST("/downCount/:retrieveCode", item.ChangeDownCount)
 		v1.POST("/item/:retrieveCode", item.DownloadItems)
 		v1.POST("/validation/:retrieveCode", item.Validation)
 	}

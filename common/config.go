@@ -9,6 +9,7 @@ import (
 
 type CloudConfiguration struct {
 	Aliyun []AliyunAccount
+	Server []ServerConfig
 }
 type AliyunAccount struct {
 	AccountId       string
@@ -29,6 +30,11 @@ type Bucket struct {
 type Config struct {
 	Name    string
 	Content string `sql:"type:text"`
+}
+
+type ServerConfig struct {
+	ServerId string
+	ServerCallBack string
 }
 
 func GetCloudConfig() (c *CloudConfiguration, err error) {

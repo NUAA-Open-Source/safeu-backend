@@ -10,6 +10,7 @@ const (
 	CloudConfigDBName     = "cloud"
 	AliyunOSSCallbackBody = `"bucket":${bucket},"object":${object},"etag":${etag},"size":${size},"mimeType":${mimeType},"height":${imageInfo.height},"width":${imageInfo.width},"format":${imageInfo.format}`
 	ReCodeLength          = 4
+	UserTokenLength       = 32
 )
 
 // 文件状态码
@@ -23,4 +24,10 @@ const (
 
 const (
 	TOKEN_VALID_MINUTES int32 = 15 // Token 有效时长
+)
+
+// RedisDB
+const (
+	USER_TOKEN = iota // 0
+	TASK_QUEUE        //1
 )

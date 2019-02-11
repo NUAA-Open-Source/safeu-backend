@@ -70,12 +70,19 @@ func FinishUpload(c *gin.Context) {
 	}
 	// 存在满足条件uuid且状态为"上传阶段"，生成新的提取码
 	reCode := common.RandStringBytesMaskImprSrc(common.ReCodeLength)
+	var files []string
 	for _, value := range finishedFiles.Files {
 		fmt.Println(value)
+		files = append(files, value.String())
 		db.Model(&Item{}).Where("name = ? AND status = ?", value, common.UPLOAD_BEGIN).Update(map[string]interface{}{"re_code": reCode, "status": common.UPLOAD_FINISHED})
 	}
+	// 将用户识别码推入Redis
+	tokenRedisClient := common.GetUserTokenRedisClient()
+	owner := common.RandStringBytesMaskImprSrc(common.UserTokenLength)
+	tokenRedisClient.SAdd(owner, files)
 	c.JSON(http.StatusOK, gin.H{
 		"recode": reCode,
+		"owner":  owner,
 	})
 }
 
@@ -122,7 +129,7 @@ func UploadCallBack(c *gin.Context) {
 		// TODO:完善此处
 		host := fmt.Sprintf("https://%s.%s/%s", common.CloudConfig.Aliyun[0].EndPoint[0].Bucket[0].Name, common.CloudConfig.Aliyun[0].EndPoint[0].Base, fileInfo.Object)
 		u := uuid.Must(uuid.NewV4())
-		item := Item{Name: u.String(), Host: host, Status: 0, OriginalName: fileInfo.Object}
+		item := Item{Name: u.String(), Host: host, Status: 0, OriginalName: fileInfo.Object[23:]}
 		db := common.GetDB()
 		db.NewRecord(item)
 		db.Create(&item)

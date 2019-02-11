@@ -14,7 +14,7 @@ type Item struct {
 	Host         string
 	ReCode       string `gorm:"index"`
 	Password     string
-	DownCount    string
+	DownCount    int `gorm:"default:-1"`
 	Type         string
 	IsPublic     bool
 	IsGroup      bool

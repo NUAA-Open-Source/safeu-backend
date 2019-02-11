@@ -22,11 +22,8 @@ import (
 	"a2os/safeu-backend/common"
 )
 
-// callbackUrl为 上传回调服务器的URL，请将下面的IP和Port配置为您自己的真实信息。
-var callbackUrl string = "http://120.24.73.105:8080/api/upload/callback"
 
 // 用户上传文件时指定的前缀。
-var upload_dir string = "user-dir-prefix/"
 var expire_time int64 = 30
 
 const (
@@ -66,7 +63,8 @@ func get_policy_token() string {
 	now := time.Now().Unix()
 	expire_end := now + expire_time
 	var tokenExpire = get_gmt_iso8601(expire_end)
-
+	//upload_dir
+	upload_dir := time.Now().Format("2006-01-02 15:04:05.00")
 	//create post policy json
 	var config ConfigStruct
 	config.Expiration = tokenExpire
@@ -85,7 +83,7 @@ func get_policy_token() string {
 
 	var callbackParam CallbackParam
 
-	callbackParam.CallbackUrl = callbackUrl
+	callbackParam.CallbackUrl = common.CloudConfig.Server[0].ServerCallBack
 	callbackParam.CallbackBody = common.AliyunOSSCallbackBody
 	callbackParam.CallbackBodyType = "application/json"
 	callback_str, err := json.Marshal(callbackParam)
@@ -101,6 +99,7 @@ func get_policy_token() string {
 	policyToken.Host = host
 	policyToken.Expire = expire_end
 	policyToken.Signature = string(signedStr)
+	//修改上传路径前缀为微秒级时间戳 避免文件名碰撞
 	policyToken.Directory = upload_dir
 	policyToken.Policy = string(debyte)
 	policyToken.Callback = string(callbackBase64)
