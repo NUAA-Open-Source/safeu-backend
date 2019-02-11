@@ -24,7 +24,6 @@ import (
 
 
 // 用户上传文件时指定的前缀。
-var upload_dir string = "user-dir-prefix/"
 var expire_time int64 = 30
 
 const (
@@ -64,7 +63,8 @@ func get_policy_token() string {
 	now := time.Now().Unix()
 	expire_end := now + expire_time
 	var tokenExpire = get_gmt_iso8601(expire_end)
-
+	//upload_dir
+	upload_dir := time.Now().Format("2006-01-02 15:04:05.00")
 	//create post policy json
 	var config ConfigStruct
 	config.Expiration = tokenExpire
@@ -99,9 +99,8 @@ func get_policy_token() string {
 	policyToken.Host = host
 	policyToken.Expire = expire_end
 	policyToken.Signature = string(signedStr)
-	//policyToken.Directory = upload_dir
 	//修改上传路径前缀为微秒级时间戳 避免文件名碰撞
-	policyToken.Directory = time.Now().Format("2006-01-02 15:04:05.00")
+	policyToken.Directory = upload_dir
 	policyToken.Policy = string(debyte)
 	policyToken.Callback = string(callbackBase64)
 	response, err := json.Marshal(policyToken)
