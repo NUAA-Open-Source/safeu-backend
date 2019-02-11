@@ -33,21 +33,23 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	ServerId string
+	ServerId       string
 	ServerCallBack string
 }
 
 func GetCloudConfig() (c *CloudConfiguration, err error) {
 	c, err = GetCloudConfigFromDB()
-	if err != nil {
+	if err != nil || c.Aliyun == nil {
 		log.Println("GetCloudConfigFromDB Fail", err)
 		c, err = GetCloudConfigFromFile()
-		if err != nil {
+		if err != nil || c.Aliyun == nil {
 			log.Println("GetCloudConfigFromFile Fail", err)
 			return c, err
 		}
+		log.Println("Get Cloud Config From File Success!")
 		return c, nil
 	}
+	log.Println("Get Cloud Config From DB Success!")
 	return c, nil
 }
 func GetCloudConfigFromFile() (*CloudConfiguration, error) {

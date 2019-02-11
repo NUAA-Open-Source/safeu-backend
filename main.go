@@ -37,6 +37,7 @@ func init() {
 	//Redis init
 	//初始化 UserToken Redis连接
 	common.UserTokenRedisClient = common.InitRedis(common.USER_TOKEN)
+	common.ReCodeRedisClient = common.InitRedis(common.RECODE)
 	//defer db.Close()
 	//Read Config
 	conf, err := common.GetCloudConfig()
@@ -44,8 +45,8 @@ func init() {
 		log.Println("GetCloudConfig Err", err)
 	}
 	common.CloudConfig = conf
-	log.Println(fmt.Sprintf("Read Cloud Config :%v",conf.Aliyun))
-	log.Println(fmt.Sprintf("Read Server Config :%v",conf.Server))
+	log.Println(fmt.Sprintf("Read Cloud Config :%v", conf.Aliyun))
+	log.Println(fmt.Sprintf("Read Server Config :%v", conf.Server))
 
 }
 

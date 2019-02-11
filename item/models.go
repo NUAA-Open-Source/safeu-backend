@@ -16,7 +16,7 @@ type Item struct {
 	Password     string
 	DownCount    int `gorm:"default:-1"`
 	Type         string
-	IsPublic     bool
+	IsPublic     bool `gorm:"default:true"`
 	IsGroup      bool
 }
 
