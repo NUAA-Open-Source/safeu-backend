@@ -22,7 +22,6 @@ import (
 	"a2os/safeu-backend/common"
 )
 
-
 // 用户上传文件时指定的前缀。
 var expire_time int64 = 30
 

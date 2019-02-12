@@ -1,0 +1,17 @@
+{
+  "Master": {
+    "User": "root",
+    "Pass": "safeu",
+    "Host": "db",
+    "Port": "3306",
+    "Database": "safeu",
+    "MaxIdleConns": 30,
+    "MaxOpenConns": 100,
+    "Debug": false
+  },
+  "Redis": {
+    "Host": "redis",
+    "Port": "6379",
+    "Pass": ""
+  }
+}
