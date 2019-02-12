@@ -10,6 +10,7 @@ import (
 type CloudConfiguration struct {
 	Aliyun []AliyunAccount
 	Server []ServerConfig
+	FaaS   []FaaSConfig
 }
 type AliyunAccount struct {
 	AccountId       string
@@ -33,8 +34,13 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	ServerId string
+	ServerId       string
 	ServerCallBack string
+}
+
+type FaaSConfig struct {
+	Name     string
+	Endpoint string
 }
 
 func GetCloudConfig() (c *CloudConfiguration, err error) {
