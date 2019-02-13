@@ -42,6 +42,7 @@ var (
 	DB                   *gorm.DB
 	DbConfig             *Dbs
 	UserTokenRedisClient *redis.Client
+	ReCodeRedisClient    *redis.Client
 )
 
 func getDBConfigFromFile() (*Dbs, error) {
@@ -60,7 +61,7 @@ func InitDB() *gorm.DB {
 		fmt.Println("Get DBConfig From File Err:", err)
 	}
 	DbConfig = DBConf
-	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Host, DBConf.Master.Port, DBConf.Master.Database))
+	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=%s", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Host, DBConf.Master.Port, DBConf.Master.Database, MYSQLTIMEZONE))
 	if err != nil {
 		//fmt.Println("Gorm Open DB Err: ", err)
 		log.Fatalln("Gorm Open DB Err: ", err)
@@ -77,6 +78,10 @@ func GetDB() *gorm.DB {
 
 func GetUserTokenRedisClient() *redis.Client {
 	return UserTokenRedisClient
+}
+
+func GetReCodeRedisClient() *redis.Client {
+	return ReCodeRedisClient
 }
 
 func InitRedis(redisDBCode int) *redis.Client {

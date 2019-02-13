@@ -37,6 +37,7 @@ func init() {
 	//Redis init
 	//初始化 UserToken Redis连接
 	common.UserTokenRedisClient = common.InitRedis(common.USER_TOKEN)
+	common.ReCodeRedisClient = common.InitRedis(common.RECODE)
 	//defer db.Close()
 	//Read Config
 	conf, err := common.GetCloudConfig()
