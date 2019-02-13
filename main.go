@@ -47,12 +47,23 @@ func init() {
 	common.CloudConfig = conf
 	log.Println(fmt.Sprintf("Read Cloud Config :%v", conf.Aliyun))
 	log.Println(fmt.Sprintf("Read Server Config :%v", conf.Server))
+	log.Println(fmt.Sprintf("Read FaaS Config: %v", conf.FaaS))
 
 }
 
 func main() {
 
 	r := gin.Default()
+
+	// DEBUG or RELEASE
+	if common.DEBUG {
+		gin.SetMode(gin.DebugMode)
+		r.Use(CORS())
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -71,4 +82,20 @@ func main() {
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080
+}
+
+func CORS() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }

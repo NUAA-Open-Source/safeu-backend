@@ -104,7 +104,7 @@ def handler(environ, start_response):
     status = '200 OK'
     response_headers = [('Content-type', 'application/json')]
     start_response(status, response_headers)
-    url = "https://" + oss_bucket_name + "." + oss_endpoint + "/" + zip_path
+    url = oss_protocol + "://" + oss_bucket_name + "." + oss_endpoint + "/" + zip_path
     data = json.dumps({
         "host": url,
         "protocol": oss_protocol,

@@ -3,6 +3,10 @@ package common
 var CloudConfig *CloudConfiguration
 
 const (
+	DEBUG bool = true
+)
+
+const (
 	DBConfigFile          = "conf/db.json"
 	CloudConfigFile       = "conf/cloud.yml"
 	CloudConfigDBName     = "cloud"
