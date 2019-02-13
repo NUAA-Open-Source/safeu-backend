@@ -9,11 +9,15 @@
 - [SafeU Backend](#safeu-backend)
   - [Programming Language](#programming-language)
   - [Config](#config)
-    - [Database](#database)
+    - [Databases Config](#databases-config)
+      - [MariaDB](#mariadb)
+      - [Redis](#redis)
+    - [Public Cloud Services Config](#public-cloud-services-config)
   - [Build from Source](#build-from-source)
   - [Run via Docker](#run-via-docker)
   - [Run via Docker Compose (Recommend)](#run-via-docker-compose-recommend)
   - [Scripts](#scripts)
+  - [FaaS](#faas)
   - [Code of Conducts](#code-of-conducts)
   - [API Documentation](#api-documentation)
   - [Development Workflow](#development-workflow)
@@ -27,7 +31,33 @@
 
 ## Config
 
-### Database
+### Databases Config
+
+在 `conf/` 下新建 `db.json` 文件，写入以下配置信息：
+
+```json
+{
+  "Master": {
+    "User": "your_db_user_name",
+    "Pass": "your_db_password",
+    "Host": "your_database_ip",
+    "Port": "your_database_port",
+    "Database": "safeu",
+    "MaxIdleConns": 30,
+    "MaxOpenConns": 100,
+    "Debug": false
+  },
+  "Redis": {
+    "Host": "your_redis_host",
+    "Port": "your_redis_port",
+    "Pass": "your_redis_password"
+  }
+}
+```
+
+> 具体请参照 `conf/db.example.json` 。
+
+#### MariaDB
 
 在 `MySQL / MariaDB` 中新建 `safeu` 数据库：
 
@@ -35,22 +65,15 @@
 CREATE DATABASE safeu;
 ```
 
-在 `conf/` 下新建 `db.json` 文件，写入以下配置信息：
+#### Redis
 
-```json
-{
-  "Master": {
-    "User": "your_user_name",
-    "Pass": "your_password",
-    "Host": "your_database_ip",
-    "Port": "your_database_port",
-    "Database": "safeu",
-    "MaxIdleConns": 30,
-    "MaxOpenConns": 100,
-    "Debug": false
-  }
-}
-```
+本应用依赖 Redis，需要在 `conf/db.json` 中填好 Redis 相关配置。
+
+### Public Cloud Services Config
+
+公有云有关配置。
+
+在 `conf/` 下新建并填写 `cloud.yml` 文件，具体请参照 `conf/cloud.exmaple.yml` 。
 
 ## Build from Source
 
@@ -76,6 +99,8 @@ $ ./build-docker-images.sh
 $ ./run-dev-docker-containers.sh
 ```
 
+> 要事先做好数据库的建立和配置。
+
 ## Run via Docker Compose (Recommend)
 
 通过 Docker Compose 编排运行应用。
@@ -97,6 +122,10 @@ $ ./docker-compose-up-development.sh
 $ cd scripts
 $./build-docker-images.sh
 ```
+
+## FaaS
+
+本项目使用阿里云函数计算以实现文件的压缩功能，函数代码见 `faas/zip-items.py`。若使用同一用户的 OSS 资源，必须基于该用户部署函数计算并且授予 OSS 相关管理权限。
 
 ## Code of Conducts
 
