@@ -4,8 +4,9 @@ db-data/
 # Ignore binary file
 safeu-backend
 
-# Ignore database config file
+# Ignore config file
 conf/db.json
+conf/cloud.yml
 
 # Ignore GoLand config files
 .idea/

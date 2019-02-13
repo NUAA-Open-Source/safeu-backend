@@ -1,6 +1,7 @@
 package item
 
 import (
+	"bytes"
 	"log"
 	"net/http"
 	"time"
@@ -8,7 +9,20 @@ import (
 	"a2os/safeu-backend/common"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/json"
 )
+
+type ItemGroup struct {
+	Items []Item `json:"items"`
+}
+
+type ZipItem struct {
+	Bucket          string
+	Endpoint        string
+	Path            string
+	AccessKey       string
+	AccessKeySecret string
+}
 
 func DownloadItems(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
@@ -89,5 +103,55 @@ func DownloadItems(c *gin.Context) {
 	return
 
 	// TODO: 多文件 zip 打包
+	// 使用 FaaS
+	var ItemGroup ItemGroup
+	if err := c.ShouldBindJSON(&ItemGroup); err != nil {
+		// 缺少 ItemGroup
+		log.Println(c.ClientIP(), " Cannot get the ItemGroup")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "cannot get the items.",
+		})
+		return
+	}
+
+	var downloadItems []ZipItem
+
+	for _, item := range ItemGroup.Items {
+		var zipItem ZipItem
+		// FIXME: 此处会报错，要等 item 表结构更改之后才能正常
+		zipItem.Bucket = item.Bucket
+		zipItem.Endpoint = item.Endpoint
+		zipItem.Path = item.Path
+		// TODO: AS/AK 要根据 bucket 来决定
+
+		downloadItems = append(downloadItems, zipItem)
+	}
+
+	reqJson := map[string]interface{}{
+		"re_code": retrieveCode,
+		"items":   downloadItems,
+	}
+	log.Println("zip endpoint: ", common.CloudConfig.FaaS[0].Endpoint) // 这行报错 runtime error: index out of range
+	log.Println("reqJson", reqJson)
+
+	bytesRepresentation, err := json.Marshal(reqJson)
+	if err != nil {
+		log.Println(err)
+	}
+
+	res, err := http.Post(common.CloudConfig.FaaS[0].Endpoint, "application/json", bytes.NewBuffer(bytesRepresentation))
+	if err != nil {
+		log.Println(err)
+	}
+
+	var resJson map[string]interface{}
+	json.NewDecoder(res.Body).Decode(&resJson)
+
+	downloadLink := resJson["url"]
+	log.Println("Get the zip file url: ", downloadLink)
+
 	// TODO: 多文件下载
+	c.JSON(http.StatusOK, gin.H{
+		"url": downloadLink,
+	})
 }
