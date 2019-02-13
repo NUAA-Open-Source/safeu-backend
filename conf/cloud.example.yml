@@ -22,4 +22,8 @@ aliyun:
 
 server:
   - serverid: 0
-    servercallback: "http://120.24.73.105:8080/api/upload/callback"
+    servercallback: "http://0.0.0.0:8080/api/upload/callback"
+
+faas:
+  - name: zip
+    endpoint: "https://cn-shanghai.fc.aliyuncs.com//proxy/safeu/zip-items/"
