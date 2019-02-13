@@ -17,7 +17,11 @@ type Item struct {
 	DownCount    int `gorm:"default:-1"`
 	Type         string
 	IsPublic     bool `gorm:"default:true"`
-	IsGroup      bool
+	IsArchive    bool `gorm:"default:false"`
+	Protocol string
+	Bucket string
+	Endpoint string
+	Path string
 }
 
 type Token struct {
