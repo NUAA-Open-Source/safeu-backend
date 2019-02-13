@@ -18,10 +18,10 @@ type Item struct {
 	Type         string
 	IsPublic     bool `gorm:"default:true"`
 	IsArchive    bool `gorm:"default:false"`
-	Protocol string
-	Bucket string
-	Endpoint string
-	Path string
+	Protocol     string
+	Bucket       string
+	Endpoint     string
+	Path         string
 }
 
 type Token struct {

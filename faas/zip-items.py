@@ -8,8 +8,8 @@ import time
 import json
 import urllib
 
-oss_endpoint = "oss-cn-shanghai.aliyuncs.com"
-oss_bucket_name = "safeu"
+# oss_endpoint = "oss-cn-shanghai.aliyuncs.com"
+# oss_bucket_name = "safeu"
 
 def handler(environ, start_response):
     context = environ['fc.context']
@@ -43,33 +43,47 @@ def handler(environ, start_response):
 
     creds = context.credentials
     auth = oss2.StsAuth(creds.accessKeyId, creds.accessKeySecret, creds.securityToken)
-    bucket = oss2.Bucket(auth, oss_endpoint, oss_bucket_name)
-    #your source list
-    # sourceFile = ['resource/1.jpg','resource/2.jpg']
-    sourceFile = request_body_json.get("items")
 
-    #zip name
-    uid = request_body_json.get("re_code")
+    items = request_body_json.get("items")
+    print("[DEBUG] items: {0}".format(items))
+
+    # zip name
+    re_code = request_body_json.get("re_code")
+    is_full = request_body_json.get("full")
     tmpdir = '/tmp/download/'
 
     os.system("rm -rf /tmp/*")
     os.mkdir(tmpdir)
 
-    #download
-    for name in sourceFile :
-        millis = int(round(time.time() * 1000))
-        bucket.get_object_to_file(name , tmpdir + name)
+    # download
+    for item in items :
+        print("[DEBUG] item: {}".format(item))
+
+        oss_protocol = item.get("protocol")
+        oss_bucket_name = item.get("bucket")
+        oss_endpoint = item.get("endpoint")
+        file_path = item.get("path")
+        file_original_name = item.get("original_name")
+
+        bucket = oss2.Bucket(auth, oss_endpoint, oss_bucket_name)
+        
+        bucket.get_object_to_file(file_path , tmpdir + file_original_name)
 
     #zip file
-    zipname = '/tmp/'+uid + '.zip'
+    zipname = '/tmp/'+ re_code + '.zip'
     make_zip(tmpdir , zipname)
 
     #upload
     total_size = os.path.getsize(zipname)
     part_size = oss2.determine_part_size(total_size, preferred_size = 128 * 1024)
 
-    key = 'archive/' + uid + '.zip'
-    upload_id = bucket.init_multipart_upload(key).upload_id
+    if is_full:
+        zip_path = 'full-archive/' + re_code + '.zip'
+    else:
+        zip_path = 'custom-archive/' + re_code + '.zip'
+
+    # use the last bucket to upload zip package
+    upload_id = bucket.init_multipart_upload(zip_path).upload_id
 
     with open(zipname, 'rb') as fileobj:
         parts = []
@@ -77,18 +91,29 @@ def handler(environ, start_response):
         offset = 0
         while offset < total_size:
             num_to_upload = min(part_size, total_size - offset)
-            result = bucket.upload_part(key, upload_id, part_number,oss2.SizedFileAdapter(fileobj, num_to_upload))
+            result = bucket.upload_part(zip_path, upload_id, part_number,oss2.SizedFileAdapter(fileobj, num_to_upload))
             parts.append(oss2.models.PartInfo(part_number, result.etag))
             offset += num_to_upload
             part_number += 1
 
-        bucket.complete_multipart_upload(key, upload_id, parts)
+        bucket.complete_multipart_upload(zip_path, upload_id, parts)
+
+    zip_meta = bucket.head_object(zip_path)
+    zip_content_type = zip_meta.headers.get('Content-Type')
     
     status = '200 OK'
     response_headers = [('Content-type', 'application/json')]
     start_response(status, response_headers)
-    url = "https://" + oss_bucket_name + "." + oss_endpoint + "/archive/" + uid + ".zip"
-    data = json.dumps({"url": url})
+    url = "https://" + oss_bucket_name + "." + oss_endpoint + "/" + zip_path
+    data = json.dumps({
+        "host": url,
+        "protocol": oss_protocol,
+        "bucket": oss_bucket_name,
+        "endpoint": oss_endpoint,
+        "path": zip_path,
+        "original_name": re_code + ".zip",
+        "type": zip_content_type,
+    })
     return [data]
 
 
