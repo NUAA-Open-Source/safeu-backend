@@ -63,15 +63,13 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
-	api := r.Group("/api")
-	v1 := api.Group("/v1")
+	v1 := r.Group("/v1")
 	{
 		item.UploadRegister(v1.Group("/upload"))
 		v1.POST("/password/:retrieveCode", item.ChangePassword)
@@ -81,7 +79,7 @@ func main() {
 		v1.POST("/validation/:retrieveCode", item.Validation)
 	}
 
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run(":" + common.PORT) // listen and serve on 0.0.0.0:PORT
 }
 
 func CORS() gin.HandlerFunc {
