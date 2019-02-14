@@ -14,10 +14,10 @@ type Item struct {
 	Host         string
 	ReCode       string `gorm:"index"`
 	Password     string
-	DownCount    int `gorm:"default:-1"`
+	DownCount    int `gorm:"default:-100"`
 	Type         string
 	IsPublic     bool `gorm:"default:true"`
-	IsArchive    bool `gorm:"default:false"`
+	ArchiveType  int `gorm:"default:0"`
 	Protocol     string
 	Bucket       string
 	Endpoint     string
