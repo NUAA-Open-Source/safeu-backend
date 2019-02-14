@@ -123,6 +123,24 @@ func DownloadItems(c *gin.Context) {
 		})
 		return
 	}
+
+	var zipEndpoint string
+	for _, faasConfig := range common.CloudConfig.FaaS {
+		if faasConfig.Name == "zip" {
+			zipEndpoint = faasConfig.Endpoint
+		}
+	}
+
+	// 若配置文件有误返回 503 Service Unavailable
+	if len(zipEndpoint) == 0 {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"error": "Service Unavailable, please contact the maintainer.",
+		})
+		log.Println("[ERROR] Cannot get the proper FaaS zip config from cloud config")
+		return
+
+	}
+
 	// 全量打包下载
 	var zipPack Item
 	if packRequest.Full {
@@ -130,8 +148,7 @@ func DownloadItems(c *gin.Context) {
 		if db.Where("re_code = ? AND (status = ? OR status = ?) AND is_archive = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, true).First(&zipPack).RecordNotFound() {
 			// 没有全量打包，进行全量打包并将记录存储到数据库中
 
-			// FIXME: 此处最好通过 key-value 来进行检索 (key = name, value = zip)
-			resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, true, common.CloudConfig.FaaS[0].Endpoint)
+			resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, true, zipEndpoint)
 
 			u := uuid.Must(uuid.NewV4())
 			zipPack.Name = u.String()
@@ -171,9 +188,7 @@ func DownloadItems(c *gin.Context) {
 	}
 
 	// 自定义多文件打包下载
-
-	// FIXME: 此处最好通过 key-value 来进行检索 (key = name, value = zip)
-	resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, false, common.CloudConfig.FaaS[0].Endpoint)
+	resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, false, zipEndpoint)
 	log.Println(c.ClientIP(), " Generated the custom zip file for retrieve code \"", retrieveCode, "\"")
 
 	downloadLink := resJson["host"]
