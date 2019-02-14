@@ -105,7 +105,29 @@ func DownloadItems(c *gin.Context) {
 
 	// 单文件下载
 	if len(itemList) == 1 {
-		url := itemList[0].Host
+		var singleItem Item = itemList[0]
+
+		// 检查剩余下载次数
+		// 若为 0 次则返回 410 Gone 并删除文件
+		if singleItem.DownCount == 0 {
+			c.JSON(http.StatusGone, gin.H{
+				"error": "Out of downloadable count.",
+			})
+			log.Println(c.ClientIP(), " The retrieve code \"", retrieveCode, "\" resouce cannot be download due to downloadable counter = 0")
+
+			// 删除文件
+			err := DeleteItem(singleItem.Bucket, singleItem.Path)
+			if err != nil {
+				log.Println("Cannot delete item in bucket ", singleItem.Bucket, ", path ", singleItem.Path)
+			}
+
+			// 删除数据库记录
+			db.Delete(&singleItem)
+
+			return
+		}
+
+		url := singleItem.Host
 		c.JSON(http.StatusOK, gin.H{
 			"url": url,
 		})

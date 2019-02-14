@@ -49,6 +49,9 @@ func init() {
 	log.Println(fmt.Sprintf("Read Server Config :%v", conf.Server))
 	log.Println(fmt.Sprintf("Read FaaS Config: %v", conf.FaaS))
 
+	// 初始化阿里云对象存储客户端对象
+	common.InitAliyunOSSClient()
+
 }
 
 func main() {

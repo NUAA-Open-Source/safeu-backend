@@ -52,7 +52,7 @@ func Validation(c *gin.Context) {
 		// 文件公有，生成 Token 并返回文件列表
 		token := GenerateTokenByMd5()
 		var itemList []Item
-		db.Where("re_code = ? AND (status = ? OR status = ?)", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE).Find(&itemList)
+		db.Where("re_code = ? AND (status = ? OR status = ?) AND is_archive = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, false).Find(&itemList)
 
 		tokenRecord := Token{Token: token, RetrieveCode: retrieveCode, Valid: true, ExpiredAt: time.Now().Add((time.Duration)(common.TOKEN_VALID_MINUTES) * time.Minute)} // Token 有效期
 		db.Create(&tokenRecord)
