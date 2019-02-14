@@ -3,6 +3,11 @@ package common
 var CloudConfig *CloudConfiguration
 
 const (
+	DEBUG bool   = true
+	PORT  string = "8080"
+)
+
+const (
 	DBConfigFile          = "conf/db.json"
 	CloudConfigFile       = "conf/cloud.yml"
 	CloudConfigDBName     = "cloud"
