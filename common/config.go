@@ -8,9 +8,13 @@ import (
 )
 
 type CloudConfiguration struct {
-	Aliyun []AliyunAccount
-	Server []ServerConfig
-	FaaS   []FaaSConfig
+	AliyunConfig AliyunConfig
+	Server       []ServerConfig
+	FaaS         []FaaSConfig
+}
+type AliyunConfig struct {
+	Accounts []AliyunAccount
+	Retry    int
 }
 type AliyunAccount struct {
 	AccountId       string
@@ -45,10 +49,10 @@ type FaaSConfig struct {
 
 func GetCloudConfig() (c *CloudConfiguration, err error) {
 	c, err = GetCloudConfigFromDB()
-	if err != nil || c.Aliyun == nil {
+	if err != nil || c == nil {
 		log.Println("GetCloudConfigFromDB Fail", err)
 		c, err = GetCloudConfigFromFile()
-		if err != nil || c.Aliyun == nil {
+		if err != nil || c == nil {
 			log.Println("GetCloudConfigFromFile Fail", err)
 			return c, err
 		}

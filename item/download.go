@@ -2,6 +2,7 @@ package item
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -110,11 +111,6 @@ func DownloadItems(c *gin.Context) {
 		// 检查剩余下载次数
 		// 若为 0 次则返回 410 Gone 并删除文件
 		if singleItem.DownCount == 0 {
-			c.JSON(http.StatusGone, gin.H{
-				"error": "Out of downloadable count.",
-			})
-			log.Println(c.ClientIP(), " The retrieve code \"", retrieveCode, "\" resouce cannot be download due to downloadable counter = 0")
-
 			// 删除文件
 			err := DeleteItem(singleItem.Bucket, singleItem.Path)
 			if err != nil {
@@ -124,6 +120,10 @@ func DownloadItems(c *gin.Context) {
 			// 删除数据库记录
 			db.Delete(&singleItem)
 
+			c.JSON(http.StatusGone, gin.H{
+				"error": "Out of downloadable count.",
+			})
+			log.Println(c.ClientIP(), " The retrieve code \"", retrieveCode, "\" resouce cannot be download due to downloadable counter = 0")
 			return
 		}
 
@@ -146,21 +146,15 @@ func DownloadItems(c *gin.Context) {
 		return
 	}
 
-	var zipEndpoint string
-	for _, faasConfig := range common.CloudConfig.FaaS {
-		if faasConfig.Name == "zip" {
-			zipEndpoint = faasConfig.Endpoint
-		}
-	}
-
+	zipEndpoint, err := GetZipEndpoint()
 	// 若配置文件有误返回 503 Service Unavailable
-	if len(zipEndpoint) == 0 {
+	if err != nil {
+		log.Println(err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"error": "Service Unavailable, please contact the maintainer.",
 		})
 		log.Println("[ERROR] Cannot get the proper FaaS zip config from cloud config")
 		return
-
 	}
 
 	// 全量打包下载
@@ -269,4 +263,19 @@ func ZipItemsFaaS(zipItems []ZipItem, retrieveCode string, isFull bool, endpoint
 	json.NewDecoder(res.Body).Decode(&resJson)
 
 	return resJson
+}
+
+func GetZipEndpoint() (string, error) {
+	var zipEndpoint string
+	for _, faasConfig := range common.CloudConfig.FaaS {
+		if faasConfig.Name == "zip" {
+			zipEndpoint = faasConfig.Endpoint
+		}
+	}
+
+	if len(zipEndpoint) == 0 {
+		return zipEndpoint, fmt.Errorf("cannot get the zip FaaS endpoint from cloud config")
+	}
+
+	return zipEndpoint, nil
 }
