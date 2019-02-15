@@ -45,9 +45,12 @@ func init() {
 		log.Println("GetCloudConfig Err", err)
 	}
 	common.CloudConfig = conf
-	log.Println(fmt.Sprintf("Read Cloud Config :%v", conf.Aliyun))
+	log.Println(fmt.Sprintf("Read Aliyun Config :%v", conf.AliyunConfig))
 	log.Println(fmt.Sprintf("Read Server Config :%v", conf.Server))
 	log.Println(fmt.Sprintf("Read FaaS Config: %v", conf.FaaS))
+
+	// 初始化阿里云对象存储客户端对象
+	common.InitAliyunOSSClient()
 
 }
 
@@ -74,6 +77,7 @@ func main() {
 		item.UploadRegister(v1.Group("/upload"))
 		v1.POST("/password/:retrieveCode", item.ChangePassword)
 		v1.POST("/recode/:retrieveCode", item.ChangeRecode)
+		v1.GET("/downCount/:retrieveCode", item.DownloadCount)
 		v1.POST("/downCount/:retrieveCode", item.ChangeDownCount)
 		v1.POST("/item/:retrieveCode", item.DownloadItems)
 		v1.POST("/validation/:retrieveCode", item.Validation)

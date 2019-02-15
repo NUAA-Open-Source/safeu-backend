@@ -2,6 +2,7 @@ package item
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -105,7 +106,28 @@ func DownloadItems(c *gin.Context) {
 
 	// 单文件下载
 	if len(itemList) == 1 {
-		url := itemList[0].Host
+		var singleItem Item = itemList[0]
+
+		// 检查剩余下载次数
+		// 若为 0 次则返回 410 Gone 并删除文件
+		if singleItem.DownCount == 0 {
+			// 删除文件
+			err := DeleteItem(singleItem.Bucket, singleItem.Path)
+			if err != nil {
+				log.Println("Cannot delete item in bucket ", singleItem.Bucket, ", path ", singleItem.Path)
+			}
+
+			// 删除数据库记录
+			db.Delete(&singleItem)
+
+			c.JSON(http.StatusGone, gin.H{
+				"error": "Out of downloadable count.",
+			})
+			log.Println(c.ClientIP(), " The retrieve code \"", retrieveCode, "\" resouce cannot be download due to downloadable counter = 0")
+			return
+		}
+
+		url := singleItem.Host
 		c.JSON(http.StatusOK, gin.H{
 			"url": url,
 		})
@@ -123,6 +145,18 @@ func DownloadItems(c *gin.Context) {
 		})
 		return
 	}
+
+	zipEndpoint, err := GetZipEndpoint()
+	// 若配置文件有误返回 503 Service Unavailable
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"error": "Service Unavailable, please contact the maintainer.",
+		})
+		log.Println("[ERROR] Cannot get the proper FaaS zip config from cloud config")
+		return
+	}
+
 	// 全量打包下载
 	var zipPack Item
 	if packRequest.Full {
@@ -130,8 +164,7 @@ func DownloadItems(c *gin.Context) {
 		if db.Where("re_code = ? AND (status = ? OR status = ?) AND is_archive = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, true).First(&zipPack).RecordNotFound() {
 			// 没有全量打包，进行全量打包并将记录存储到数据库中
 
-			// FIXME: 此处最好通过 key-value 来进行检索 (key = name, value = zip)
-			resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, true, common.CloudConfig.FaaS[0].Endpoint)
+			resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, true, zipEndpoint)
 
 			u := uuid.Must(uuid.NewV4())
 			zipPack.Name = u.String()
@@ -146,7 +179,8 @@ func DownloadItems(c *gin.Context) {
 			zipPack.Endpoint = resJson["endpoint"]
 			zipPack.Path = resJson["path"]
 			zipPack.Type = resJson["type"]
-			zipPack.IsArchive = true
+			zipPack.ArchiveType = common.ARCHIVE_FULL
+			zipPack.DownCount = common.INFINITE_DOWNLOAD
 
 			db.Create(&zipPack)
 			log.Println("Generated the full files zip package for retrieve code \"", retrieveCode, "\"")
@@ -171,10 +205,29 @@ func DownloadItems(c *gin.Context) {
 	}
 
 	// 自定义多文件打包下载
-
-	// FIXME: 此处最好通过 key-value 来进行检索 (key = name, value = zip)
-	resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, false, common.CloudConfig.FaaS[0].Endpoint)
+	resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, false, zipEndpoint)
 	log.Println(c.ClientIP(), " Generated the custom zip file for retrieve code \"", retrieveCode, "\"")
+
+	// 将自定义压缩包存入数据库记录
+	zipPack = Item{
+		Status:       common.UPLOAD_FINISHED,
+		Name:         uuid.Must(uuid.NewV4()).String(),
+		OriginalName: resJson["original_name"],
+		Host:         resJson["host"],
+		ReCode:       retrieveCode,
+		Password:     itemList[0].Password,
+		DownCount:    common.INFINITE_DOWNLOAD,
+		Type:         resJson["type"],
+		IsPublic:     itemList[0].IsPublic,
+		ArchiveType:  common.ARCHIVE_CUSTOM,
+		Protocol:     resJson["protocol"],
+		Bucket:       resJson["bucket"],
+		Endpoint:     resJson["endpoint"],
+		Path:         resJson["path"],
+	}
+	// FIXME: 先清除数据库之前同提取码的自定义压缩包记录
+	db.Create(&zipPack)
+	log.Println("Generated the custom files zip package for retrieve code \"", retrieveCode, "\"")
 
 	downloadLink := resJson["host"]
 	log.Println(c.ClientIP(), " Get the zip file url: ", downloadLink)
@@ -183,6 +236,7 @@ func DownloadItems(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"url": downloadLink,
 	})
+
 	return
 }
 
@@ -209,4 +263,19 @@ func ZipItemsFaaS(zipItems []ZipItem, retrieveCode string, isFull bool, endpoint
 	json.NewDecoder(res.Body).Decode(&resJson)
 
 	return resJson
+}
+
+func GetZipEndpoint() (string, error) {
+	var zipEndpoint string
+	for _, faasConfig := range common.CloudConfig.FaaS {
+		if faasConfig.Name == "zip" {
+			zipEndpoint = faasConfig.Endpoint
+		}
+	}
+
+	if len(zipEndpoint) == 0 {
+		return zipEndpoint, fmt.Errorf("cannot get the zip FaaS endpoint from cloud config")
+	}
+
+	return zipEndpoint, nil
 }

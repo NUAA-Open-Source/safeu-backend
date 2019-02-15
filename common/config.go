@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -8,24 +9,28 @@ import (
 )
 
 type CloudConfiguration struct {
-	Aliyun []AliyunAccount
-	Server []ServerConfig
-	FaaS   []FaaSConfig
+	AliyunConfig AliyunConfig   `yaml:"aliyun"`
+	Server       []ServerConfig `yaml:"server"`
+	FaaS         []FaaSConfig   `yaml:"faas"`
+}
+type AliyunConfig struct {
+	Accounts []AliyunAccount `yaml:"account"`
+	Retry    int             `yaml:"retry"`
 }
 type AliyunAccount struct {
-	AccountId       string
-	AccessKey       string
-	AccessKeySecret string
-	EndPoint        []EndPoint
+	AccountId       string     `yaml:"accountid"`
+	AccessKey       string     `yaml:"accesskey"`
+	AccessKeySecret string     `yaml:"accesskeysecret"`
+	EndPoint        []EndPoint `yaml:"endpoint"`
 }
 type EndPoint struct {
-	EndPointId string
-	Base       string
-	Bucket     []Bucket
+	EndPointId string   `yaml:"endpointid"`
+	Base       string   `yaml:"base"`
+	Bucket     []Bucket `yaml:"bucket"`
 }
 type Bucket struct {
-	BucketId string
-	Name     string
+	BucketId string `yaml:"bucketid"`
+	Name     string `yaml:"name"`
 }
 
 type Config struct {
@@ -34,21 +39,21 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	ServerId       string
-	ServerCallBack string
+	ServerId       string `yaml:"serverid"`
+	ServerCallBack string `yaml:"servercallback"`
 }
 
 type FaaSConfig struct {
-	Name     string
-	Endpoint string
+	Name     string `yaml:"name"`
+	Endpoint string `yaml:"endpoint"`
 }
 
 func GetCloudConfig() (c *CloudConfiguration, err error) {
 	c, err = GetCloudConfigFromDB()
-	if err != nil || c.Aliyun == nil {
+	if err != nil || isAliyunConfigEmpty(c) != nil {
 		log.Println("GetCloudConfigFromDB Fail", err)
 		c, err = GetCloudConfigFromFile()
-		if err != nil || c.Aliyun == nil {
+		if err != nil || isAliyunConfigEmpty(c) != nil {
 			log.Println("GetCloudConfigFromFile Fail", err)
 			return c, err
 		}
@@ -85,4 +90,12 @@ func GetCloudConfigFromDB() (*CloudConfiguration, error) {
 		return &cloudConfig, err
 	}
 	return &cloudConfig, nil
+}
+
+func isAliyunConfigEmpty(c *CloudConfiguration) error {
+	if c.AliyunConfig.Accounts == nil ||
+		c.AliyunConfig.Retry == 0 {
+		return fmt.Errorf("aliyun config is empty")
+	}
+	return nil
 }
