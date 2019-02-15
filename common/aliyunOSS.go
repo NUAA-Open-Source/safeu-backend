@@ -11,8 +11,8 @@ var ossClient *oss.Client
 func InitAliyunOSSClient() *oss.Client {
 
 	var (
-		ossEndpoint string
-		accessKeyID string
+		ossEndpoint     string
+		accessKeyID     string
 		accessKeySecret string
 	)
 
@@ -40,6 +40,6 @@ func InitAliyunOSSClient() *oss.Client {
 	return ossClient
 }
 
-func GetAliyunOSSClient() *oss.Client{
+func GetAliyunOSSClient() *oss.Client {
 	return ossClient
 }

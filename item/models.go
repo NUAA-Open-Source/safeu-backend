@@ -17,7 +17,7 @@ type Item struct {
 	DownCount    int `gorm:"default:-100"`
 	Type         string
 	IsPublic     bool `gorm:"default:true"`
-	ArchiveType  int `gorm:"default:0"`
+	ArchiveType  int  `gorm:"default:0"`
 	Protocol     string
 	Bucket       string
 	Endpoint     string

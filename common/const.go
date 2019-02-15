@@ -28,13 +28,13 @@ const (
 
 // 压缩包/归档类型
 const (
-	ARCHIVE_NULL	= iota	// 0，非压缩包
-	ARCHIVE_CUSTOM			// 1，临时压缩包
-	ARCHIVE_FULL			// 2，全量压缩包
+	ARCHIVE_NULL   = iota // 0，非压缩包
+	ARCHIVE_CUSTOM        // 1，临时压缩包
+	ARCHIVE_FULL          // 2，全量压缩包
 )
 
 const (
-	INFINITE_DOWNLOAD	= -100
+	INFINITE_DOWNLOAD = -100
 )
 
 const (

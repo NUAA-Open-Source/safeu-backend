@@ -216,34 +216,32 @@ func DownloadItems(c *gin.Context) {
 
 	// 将自定义压缩包存入数据库记录
 	zipPack = Item{
-		Status: common.UPLOAD_FINISHED,
-		Name: uuid.Must(uuid.NewV4()).String(),
+		Status:       common.UPLOAD_FINISHED,
+		Name:         uuid.Must(uuid.NewV4()).String(),
 		OriginalName: resJson["original_name"],
-		Host: resJson["host"],
-		ReCode: retrieveCode,
-		Password: itemList[0].Password,
-		DownCount: common.INFINITE_DOWNLOAD,
-		Type: resJson["type"],
-		IsPublic: itemList[0].IsPublic,
-		ArchiveType: common.ARCHIVE_CUSTOM,
-		Protocol: resJson["protocol"],
-		Bucket: resJson["bucket"],
-		Endpoint: resJson["endpoint"],
-		Path: resJson["path"],
+		Host:         resJson["host"],
+		ReCode:       retrieveCode,
+		Password:     itemList[0].Password,
+		DownCount:    common.INFINITE_DOWNLOAD,
+		Type:         resJson["type"],
+		IsPublic:     itemList[0].IsPublic,
+		ArchiveType:  common.ARCHIVE_CUSTOM,
+		Protocol:     resJson["protocol"],
+		Bucket:       resJson["bucket"],
+		Endpoint:     resJson["endpoint"],
+		Path:         resJson["path"],
 	}
-
+	// FIXME: 先清除数据库之前同提取码的自定义压缩包记录
 	db.Create(&zipPack)
 	log.Println("Generated the custom files zip package for retrieve code \"", retrieveCode, "\"")
 
 	downloadLink := resJson["host"]
 	log.Println(c.ClientIP(), " Get the zip file url: ", downloadLink)
 
-
 	// 返回压缩包路径
 	c.JSON(http.StatusOK, gin.H{
 		"url": downloadLink,
 	})
-
 
 	return
 }

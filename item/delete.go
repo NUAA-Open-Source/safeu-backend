@@ -6,7 +6,7 @@ import (
 	"a2os/safeu-backend/common"
 )
 
-func DeleteItem(bucketName string, objectName string) (error) {
+func DeleteItem(bucketName string, objectName string) error {
 
 	client := common.GetAliyunOSSClient()
 
