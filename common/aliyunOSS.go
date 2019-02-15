@@ -17,7 +17,7 @@ func InitAliyunOSSClient() *oss.Client {
 	)
 
 	// 从云配置中获取相关配置
-	for _, account := range CloudConfig.Aliyun {
+	for _, account := range CloudConfig.AliyunConfig.Accounts {
 		accessKeyID = account.AccessKey
 		accessKeySecret = account.AccessKeySecret
 		for _, endpoint := range account.EndPoint {

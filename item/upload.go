@@ -81,7 +81,7 @@ func get_policy_token() string {
 	//calucate signature
 	result, err := json.Marshal(config)
 	debyte := base64.StdEncoding.EncodeToString(result)
-	h := hmac.New(func() hash.Hash { return sha1.New() }, []byte(common.CloudConfig.Aliyun[0].AccessKeySecret))
+	h := hmac.New(func() hash.Hash { return sha1.New() }, []byte(common.CloudConfig.AliyunConfig.Accounts[0].AccessKeySecret))
 	io.WriteString(h, debyte)
 	signedStr := base64.StdEncoding.EncodeToString(h.Sum(nil))
 
@@ -97,9 +97,9 @@ func get_policy_token() string {
 	callbackBase64 := base64.StdEncoding.EncodeToString(callback_str)
 
 	var policyToken PolicyToken
-	host := fmt.Sprintf("%s.%s", common.CloudConfig.Aliyun[0].EndPoint[0].Bucket[0].Name, common.CloudConfig.Aliyun[0].EndPoint[0].Base)
+	host := fmt.Sprintf("%s.%s", common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Bucket[0].Name, common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Base)
 
-	policyToken.AccessKeyId = common.CloudConfig.Aliyun[0].AccessKey
+	policyToken.AccessKeyId = common.CloudConfig.AliyunConfig.Accounts[0].AccessKey
 	policyToken.Host = host
 	policyToken.Expire = expire_end
 	policyToken.Signature = string(signedStr)
@@ -534,7 +534,7 @@ func UploadCallBack(c *gin.Context) {
 	}
 
 	if verifySignature(bytePublicKey, byteMD5, byteAuthorization) {
-		host := fmt.Sprintf("https://%s.%s/%s", common.CloudConfig.Aliyun[0].EndPoint[0].Bucket[0].Name, common.CloudConfig.Aliyun[0].EndPoint[0].Base, fileInfo.Object)
+		host := fmt.Sprintf("https://%s.%s/%s", common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Bucket[0].Name, common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Base, fileInfo.Object)
 		u := uuid.Must(uuid.NewV4())
 		item := Item{Status: common.UPLOAD_BEGIN, Name: u.String(), OriginalName: fileInfo.Object[23:], Host: host, Type: fileInfo.MimeType, IsPublic: true}
 		db := common.GetDB()

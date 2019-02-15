@@ -45,7 +45,7 @@ func init() {
 		log.Println("GetCloudConfig Err", err)
 	}
 	common.CloudConfig = conf
-	log.Println(fmt.Sprintf("Read Cloud Config :%v", conf.Aliyun))
+	log.Println(fmt.Sprintf("Read Aliyun Config :%v", conf.AliyunConfig))
 	log.Println(fmt.Sprintf("Read Server Config :%v", conf.Server))
 	log.Println(fmt.Sprintf("Read FaaS Config: %v", conf.FaaS))
 
