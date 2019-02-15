@@ -422,9 +422,6 @@ type FileInfo struct {
 	Etag     string `json:"etag"`
 	Size     int    `json:"size"`
 	MimeType string `json:"mimeType"`
-	Height   int    `json:"height"`
-	Width    int    `json:"width"`
-	Format   string `json:"format"`
 }
 
 type FinishedFiles struct {

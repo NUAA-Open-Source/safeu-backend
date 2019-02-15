@@ -11,7 +11,7 @@ const (
 	DBConfigFile          = "conf/db.json"
 	CloudConfigFile       = "conf/cloud.yml"
 	CloudConfigDBName     = "cloud"
-	AliyunOSSCallbackBody = `"bucket":${bucket},"object":${object},"etag":${etag},"size":${size},"mimeType":${mimeType},"height":${imageInfo.height},"width":${imageInfo.width},"format":${imageInfo.format}`
+	AliyunOSSCallbackBody = `"bucket":${bucket},"object":${object},"etag":${etag},"size":${size},"mimeType":${mimeType}`
 	ReCodeLength          = 4
 	UserTokenLength       = 32
 	MYSQLTIMEZONE         = "Asia%2FShanghai"
