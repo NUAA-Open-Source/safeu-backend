@@ -133,7 +133,7 @@ $./build-docker-images.sh
 
 API 文档位于 `api/` 文件夹下，采用 [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) 标准编写。
 
-Online Documentation: https://app.swaggerhub.com/apis/a2os/safeu
+Online Documentation: https://app.swaggerhub.com/apis-docs/a2os/safeu
 
 > 更多信息见 [SafeU 内部文档](https://docs.google.com/document/d/1UiFHogsqDSqw3SrEAnEMukOoJq3fyxqIIEP-OE7ask0/edit?ts=5c56f70d) **需要权限**。
 

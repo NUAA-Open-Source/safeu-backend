@@ -27,16 +27,55 @@ externalDocs:
   description: Find out more about A2OS SafeU backend
   url: https://api.safeu.a2os.club
 tags:
-- name: upload
-  description: Upload item(s) operations
-- name: update
-  description: Update item(s) operations
-- name: download
-  description: Download item(s) operations
-- name: validation
-  description: Validation operations
+  - name: upload
+    description: Upload item(s) operations
+  - name: update
+    description: Update item(s) operations
+  - name: download
+    description: Download item(s) operations
+  - name: validation
+    description: Validation operations
 paths:
-  /item/{retrieveCode}:
+  /v1/downCount/{retrieveCode}:
+    get:
+      tags:
+        - download
+      summary: 下载感知接口
+      operationId: downloadAwareness
+      parameters:
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功接收下载信息
+          content:
+            'text/plain':
+              schema:
+                type: string
+                description: 数据操作（OK，MINUS，DELETED）
+        '404':
+          description: 无法找到资源
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 错误原因
+        '500':
+          description: 服务器错误
+          content:
+            'text/plain':
+              schema:
+                type: string
+                description: 未知错误
+
+  /v1/item/{retrieveCode}:
     post:
       tags:
         - download
@@ -122,7 +161,8 @@ paths:
                   error:
                     type: string
                     description: 错误原因
-  /validation/{retrieveCode}:
+
+  /v1/validation/{retrieveCode}:
     post:
       tags:
         - validation
