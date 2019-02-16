@@ -22,94 +22,28 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: "0.1.0"
+  version: "1.0.0-alpha"
 externalDocs:
-  description: Find out more about A2OS
-  url: https://a2os.club
+  description: Find out more about A2OS SafeU backend
+  url: https://api.safeu.a2os.club
 tags:
-- name: item
-  description: Items operations
+- name: upload
+  description: Upload item(s) operations
+- name: update
+  description: Update item(s) operations
+- name: download
+  description: Download item(s) operations
 - name: validation
   description: Validation operations
 paths:
-  /item:
-    post:
-      tags:
-        - item
-      summary: 上传新文件
-      operationId: uploadItem
-      requestBody:
-        content:
-          'application/json':
-            schema:
-              type: object
-              properties:
-                region:
-                  description: 存储地域 / bucket 值
-                  type: string
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/ItemGroup'
-        '405':
-          description: Invalid input
   /item/{retrieveCode}:
-    put:
-      tags:
-        - item
-      summary: 编辑文件提取信息
-      operationId: editItem
-      parameters:
-        - name: retrieveCode
-          in: path
-          description: 提取码
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          'application/json':
-            schema:
-              type: object
-              properties:
-                re_code:
-                  type: string
-                  description: 提取码
-                down_count:
-                  type: integer
-                  format: int32
-                  description: 可下载次数
-                duration:
-                  type: string
-                  format: date-time
-                  description: 存储时长
-                is_public:
-                  type: boolean
-                  description: 文件是否公有
-                password:
-                  type: string
-                  format: password
-                  description: 文件提取密码
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/ItemGroup'
-        '405':
-          description: Invalid input
     post:
       tags:
-        - item
-      summary: 下载文件
+        - download
+      summary: 获取下载/打包文件连接
       operationId: downloadItem
       parameters:
-        - name: token
+        - name: Token
           in: header
           description: 临时认证口令
           style: simple
@@ -126,10 +60,10 @@ paths:
         content:
           'application/json':
             schema:
-              $ref: '#/components/schemas/ItemGroup'
+              $ref: '#/components/schemas/PackRequest'
       responses:
         '200':
-          description: Successful operation
+          description: 成功获取文件（组）下载链接
           content:
             'application/json':
               schema:
@@ -137,8 +71,57 @@ paths:
                 properties:
                   url:
                     type: string
-                    description: 下载链接
-        # TODO: 补充更多 HTTP 状态码
+                    description: 文件（组）下载链接
+        '400':
+          description: 无法获得文件列表
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 错误原因
+        '401':
+          description: 认证失败
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 错误原因
+        '404':
+          description: 无法找到资源/认证口令
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 错误原因
+        '410':
+          description: 下载次数耗尽
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 错误原因
+        '503':
+          description: 无法提供服务
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 错误原因
   /validation/{retrieveCode}:
     post:
       tags:
@@ -163,7 +146,7 @@ paths:
                   description: 文件提取密码
       responses:
         '200':
-          description: Successful validation
+          description: 认证成功
           content:
             'application/json':
               schema:
@@ -175,7 +158,7 @@ paths:
                   items:
                     $ref: '#/components/schemas/ItemGroup'
         '401':
-          description: Unauthorized
+          description: 需要密码 / 密码认证失败
           content:
             'application/json':
               schema:
@@ -183,9 +166,9 @@ paths:
                 properties:
                   error:
                     type: string
-                    description: 需要密码 / 密码认证失败
+                    description: 错误原因
         '404':
-          description: Not Found
+          description: 无法通过该提取码找到文件
           content:
             'application/json':
               schema:
@@ -193,7 +176,7 @@ paths:
                 properties:
                   error:
                     type: string
-                    description: 无法通过该提取码找到文件
+                    description: 错误原因
 
 components:
   schemas:
@@ -204,30 +187,22 @@ components:
         id:
           type: integer
           format: int64
+        status:
+          type: integer
+          format: int32
+          description: 文件状态（正常，异常，已删除）
         name:
           type: string
-          description: 存储单位 UUID 号
+          description: 存储单位 UUID 值
         original_name:
           type: string
           description: 文件原名
         host:
           type: string
           description: 存储后端的 bucket 记录
-        type:
-          type: string
-          description: 文件类型
         re_code:
           type: string
           description: 提取码
-        is_public:
-          type: boolean
-          description: 是否公有
-        is_group:
-          type: boolean
-          description: 是否在一个文件组中
-        # group_name:
-        #   type: string
-        #   description: 文件组组名
         password:
           type: string
           description: 私有文件[组]的密码
@@ -235,24 +210,78 @@ components:
           type: integer
           format: int32
           description: 可下载次数
-        duration:
+        type:
           type: string
-          format: date-time
-          description: 存储时长
-        status:
+          description: 文件类型
+        is_public:
+          type: boolean
+          description: 是否公有
+        archive_type:
           type: integer
           format: int32
-          description: 文件状态（正常，异常，已删除）
-        created_date:
+          description: 压缩包类型（NULL，FULL，CUSTOM）
+        # duration:
+        #   type: string
+        #   format: date-time
+        #   description: 存储时长
+        protocol:
+          type: string
+          description: OSS 下载协议
+        bucket:
+          type: string
+          description: 文件所在 OSS 桶名
+        endpoint:
+          type: string
+          description: OSS 地域路径
+        path:
+          type: string
+          description: 文件所在 OSS 桶中的绝对路径
+        created_at:
           type: string
           format: date-time
           description: 最初生成时间
-        last_updated:
+        updated_at:
           type: string
           format: date-time
           description: 最后更新时间
+        deleted_at:
+          type: string
+          format: date-time
+          description: 记录删除时间
     ItemGroup:
       type: array
       items:
         $ref: '#/components/schemas/Item'
       description: 文件组
+    ZipItem:
+      type: object
+      description: 待下载文件
+      properties:
+        protocol:
+          type: string
+          description: OSS 下载协议
+        bucket:
+          type: string
+          description: 文件所在 OSS 桶名
+        endpoint:
+          type: string
+          description: OSS 地域路径
+        path:
+          type: string
+          description: 文件所在 OSS 桶中的绝对路径
+        original_name:
+          type: string
+          description: 文件原名
+    PackRequest:
+      type: object
+      description: 打包/下载链接请求
+      properties:
+        full:
+          type: boolean
+          description: 是否为该提取码下的全部文件
+        items:
+          type: array
+          description: 待打包/下载文件
+          items:
+            $ref: '#/components/schemas/ZipItem'
+          
