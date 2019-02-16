@@ -161,7 +161,7 @@ func DownloadItems(c *gin.Context) {
 	var zipPack Item
 	if packRequest.Full {
 		// 全量打包下载
-		if db.Where("re_code = ? AND (status = ? OR status = ?) AND is_archive = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, true).First(&zipPack).RecordNotFound() {
+		if db.Where("re_code = ? AND (status = ? OR status = ?) AND archive_type = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, common.ARCHIVE_FULL).First(&zipPack).RecordNotFound() {
 			// 没有全量打包，进行全量打包并将记录存储到数据库中
 
 			resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, true, zipEndpoint)
@@ -225,7 +225,13 @@ func DownloadItems(c *gin.Context) {
 		Endpoint:     resJson["endpoint"],
 		Path:         resJson["path"],
 	}
-	// FIXME: 先清除数据库之前同提取码的自定义压缩包记录
+	// 先清除数据库之前同提取码的自定义压缩包记录
+	var deleteZipPacks []Item
+	db.Where("re_code = ? AND (status = ? OR status = ?) AND archive_type = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, common.ARCHIVE_CUSTOM).Find(&deleteZipPacks)
+	for _, deleteZipPack := range deleteZipPacks {
+		db.Delete(&deleteZipPack)
+	}
+
 	db.Create(&zipPack)
 	log.Println("Generated the custom files zip package for retrieve code \"", retrieveCode, "\"")
 
