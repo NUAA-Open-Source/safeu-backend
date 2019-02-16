@@ -49,6 +49,18 @@ paths:
           required: true
           schema:
             type: string
+        - name: bucket
+          in: query
+          description: 文件所在 OSS 桶名
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          description: 文件所在 OSS 桶中的绝对路径
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: 成功接收下载信息
@@ -260,10 +272,6 @@ components:
           type: integer
           format: int32
           description: 压缩包类型（NULL，FULL，CUSTOM）
-        # duration:
-        #   type: string
-        #   format: date-time
-        #   description: 存储时长
         protocol:
           type: string
           description: OSS 下载协议
