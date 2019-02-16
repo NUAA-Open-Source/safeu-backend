@@ -498,10 +498,13 @@ func UploadCallBack(c *gin.Context) {
 	rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
 	rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf))
 	bufTemp := new(bytes.Buffer)
-	bufTemp.ReadFrom(rdr1)
+	_, err := bufTemp.ReadFrom(rdr1)
+	if err != nil {
+		log.Println("UploadCallBack bufTemp ReadFrom fail", err)
+	}
 	s := fmt.Sprintf("{%s}", bufTemp.String())
 	var fileInfo FileInfo
-	err := json.Unmarshal([]byte(s), &fileInfo)
+	err = json.Unmarshal([]byte(s), &fileInfo)
 	if err != nil {
 		fmt.Println("Json Unmarshal Fail", err)
 	}
@@ -531,14 +534,12 @@ func UploadCallBack(c *gin.Context) {
 	}
 
 	if verifySignature(bytePublicKey, byteMD5, byteAuthorization) {
-		host := fmt.Sprintf("https://%s.%s/%s", common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Bucket[0].Name, common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Base, fileInfo.Object)
-		u := uuid.Must(uuid.NewV4())
-		item := Item{Status: common.UPLOAD_BEGIN, Name: u.String(), OriginalName: fileInfo.Object[23:], Host: host, Type: fileInfo.MimeType, IsPublic: true}
+		// 鉴权成功后填写DB数据 避免数据丢失
+		item := BuildItemFromCallBack(fileInfo)
 		db := common.GetDB()
-		db.NewRecord(item)
 		db.Create(&item)
 		c.JSON(http.StatusOK, gin.H{
-			"uuid": u,
+			"uuid": item.Name,
 		})
 		return
 	} else {
@@ -548,4 +549,23 @@ func UploadCallBack(c *gin.Context) {
 		})
 		return
 	}
+}
+
+func BuildItemFromCallBack(info FileInfo) *Item {
+	var item Item
+	endpoint := common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Base
+	host := fmt.Sprintf("%s://%s.%s/%s", common.DEFAULT_PROTOCOL, info.Bucket, endpoint, info.Object)
+	item.Status = common.UPLOAD_BEGIN
+	item.Name = uuid.Must(uuid.NewV4()).String()
+	item.OriginalName = info.Object[23:] // 截取时间戳后的文件名称
+	item.Host = host
+	item.DownCount = common.INFINITE_DOWNLOAD
+	item.Type = info.MimeType
+	item.IsPublic = true
+	item.ArchiveType = common.ARCHIVE_NULL
+	item.Protocol = common.DEFAULT_PROTOCOL
+	item.Bucket = info.Bucket
+	item.Endpoint = endpoint
+	item.Path = info.Object
+	return &item
 }
