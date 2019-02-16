@@ -56,14 +56,14 @@ func DownloadCount(c *gin.Context) {
 		}
 
 		// 更新下载次数
-		db.Update(&singleItem)
+		db.Model(&singleItem).Update("down_count", singleItem.DownCount)
 		c.String(http.StatusOK, "MINUS")
 		return
 	}
 
 	// ------- 文件组生命周期
 
-	isDelete := false
+	isDelete, isMinus := false, false
 	for _, item := range itemList {
 		// 检查是否为当前文件，次数无限直接返回
 		if item.DownCount == common.INFINITE_DOWNLOAD && item.Bucket == bucket && item.Path == path {
@@ -76,6 +76,7 @@ func DownloadCount(c *gin.Context) {
 			item.DownCount -= 1
 			db.Model(&item).Update("down_count", item.DownCount)
 			log.Println(c.ClientIP(), " Item ", item.ID, " remain downloadable count: ", item.DownCount)
+			isMinus = true
 		}
 
 		if item.DownCount == common.INFINITE_DOWNLOAD {
@@ -120,8 +121,10 @@ func DownloadCount(c *gin.Context) {
 
 	if isDelete {
 		c.String(http.StatusOK, "DELETED")
-	} else {
+	} else if isMinus {
 		c.String(http.StatusOK, "MINUS")
+	} else {
+		c.String(http.StatusInternalServerError, "UNKNOWN ERROR")
 	}
 
 	return
