@@ -110,10 +110,11 @@ func DownloadCount(c *gin.Context) {
 			err := DeleteItem(deleteItem.Bucket, deleteItem.Path)
 			if err != nil {
 				log.Println("Cannot delete item in bucket ", deleteItem.Bucket, ", path ", deleteItem.Path)
+			} else {
+				// 删除压缩包的数据库记录
+				db.Delete(&deleteItem)
 			}
 
-			// 删除压缩包的数据库记录
-			db.Delete(&deleteItem)
 		}
 
 		log.Println(c.ClientIP(), " Clean all the zip package for retrieve code \"", retrieveCode, "\"")
