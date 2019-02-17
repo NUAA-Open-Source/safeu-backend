@@ -6,6 +6,8 @@ services:
       dockerfile: ././build/package/safeu-backend-dev/Dockerfile-compose
     volumes:
       - ../..:$GOPATH/src/a2os/safeu-backend/
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - "8080:8080"
     networks:
@@ -16,6 +18,7 @@ services:
     restart: always
   db:
     environment:
+      - TZ=Asia/Shanghai
       - MYSQL_ROOT_PASSWORD=safeu
       - MYSQL_DATABASE=safeu
     image: mariadb:10.3
@@ -27,6 +30,8 @@ services:
       - webnet
   redis:
     image: redis:5.0.3-alpine
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - "6379:6379"
     networks:

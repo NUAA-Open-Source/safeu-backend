@@ -7,6 +7,10 @@ ADD . $GOPATH/src/a2os/safeu-backend/
 
 COPY conf/db.example.json $GOPATH/src/a2os/safeu-backend/conf/db.json
 
+# Add timezone package
+RUN apt-get update ;\
+    apt-get install -y tzdata
+
 # Add dependencies
 RUN go get -u github.com/kardianos/govendor && go get github.com/pilu/fresh && govendor sync
 
