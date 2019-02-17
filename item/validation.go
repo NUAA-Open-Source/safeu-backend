@@ -55,7 +55,7 @@ func Validation(c *gin.Context) {
 		itemList, err := CheckDownCountAndExpiredTime(db, retrieveCode)
 		if err != nil {
 			log.Println(c.ClientIP(), " check down count and expired time failed")
-			c.JSON(http.StatusServiceUnavailable, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "There is a problem for this resource, please contact the maintainer.",
 			})
 			return
@@ -119,7 +119,7 @@ func Validation(c *gin.Context) {
 	itemList, err := CheckDownCountAndExpiredTime(db, retrieveCode)
 	if err != nil {
 		log.Println(c.ClientIP(), " check down count and expired time failed")
-		c.JSON(http.StatusServiceUnavailable, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "There is a problem for this resource, please contact the maintainer.",
 		})
 		return
