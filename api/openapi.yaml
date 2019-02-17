@@ -229,6 +229,16 @@ paths:
                   error:
                     type: string
                     description: 错误原因
+        '500':
+          description: 资源不可用
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: 错误原因
 
 components:
   schemas:

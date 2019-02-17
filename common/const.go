@@ -36,7 +36,7 @@ const (
 // 初始化参数
 const (
 	INFINITE_DOWNLOAD = -100
-	DEFAULT_PROTOCOL = "https"
+	DEFAULT_PROTOCOL  = "https"
 )
 
 const (

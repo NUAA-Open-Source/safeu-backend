@@ -108,6 +108,26 @@ func DownloadItems(c *gin.Context) {
 	if len(itemList) == 1 {
 		var singleItem Item = itemList[0]
 
+		// 检查文件有效时间
+		if singleItem.ExpiredAt.Before(time.Now()) {
+			// 文件已过期
+			// 清除文件
+			err := DeleteItem(singleItem.Bucket, singleItem.Path)
+			if err != nil {
+				log.Println("Cannot delete item in bucket ", singleItem.Bucket, ", path ", singleItem.Path)
+			}
+
+			// 删除数据库记录
+			db.Delete(&singleItem)
+
+			// 返回 410 Gone
+			c.JSON(http.StatusGone, gin.H{
+				"error": "Over the expired time.",
+			})
+			log.Println(c.ClientIP(), " The retrieve code \"", retrieveCode, "\" resouce cannot be download due to the file duaration expired")
+			return
+		}
+
 		// 检查剩余下载次数
 		// 若为 0 次则返回 410 Gone 并删除文件
 		if singleItem.DownCount == 0 {
@@ -127,6 +147,7 @@ func DownloadItems(c *gin.Context) {
 			return
 		}
 
+		// 剩余时间与下载次数合法，获取文件
 		url := singleItem.Host
 		c.JSON(http.StatusOK, gin.H{
 			"url": url,
@@ -162,8 +183,8 @@ func DownloadItems(c *gin.Context) {
 	if packRequest.Full {
 		// 全量打包下载
 		if db.Where("re_code = ? AND (status = ? OR status = ?) AND archive_type = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, common.ARCHIVE_FULL).First(&zipPack).RecordNotFound() {
-			// 没有全量打包，进行全量打包并将记录存储到数据库中
 
+			// 没有全量打包，进行全量打包并将记录存储到数据库中
 			resJson := ZipItemsFaaS(packRequest.ZipItems, retrieveCode, true, zipEndpoint)
 
 			u := uuid.Must(uuid.NewV4())

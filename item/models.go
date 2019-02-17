@@ -22,6 +22,7 @@ type Item struct {
 	Bucket       string
 	Endpoint     string
 	Path         string
+	ExpiredAt    time.Time `gorm:"NOT NULL"`
 }
 
 type Token struct {
