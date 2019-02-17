@@ -7,6 +7,7 @@ import (
 	"a2os/safeu-backend/common"
 
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 func DownloadCount(c *gin.Context) {
@@ -33,6 +34,24 @@ func DownloadCount(c *gin.Context) {
 	if len(itemList) == 1 {
 		singleItem := itemList[0]
 
+		// 检查有效期
+		if singleItem.ExpiredAt.Before(time.Now()) {
+			// 文件过期
+			// 清除文件
+			err := DeleteItem(singleItem.Bucket, singleItem.Path)
+			if err != nil {
+				log.Println("Cannot delete item in bucket ", singleItem.Bucket, ", path ", singleItem.Path)
+			} else {
+				// 删除数据库记录
+				db.Delete(&singleItem)
+				c.String(http.StatusOK, "DELETED")
+				return
+			}
+
+			c.String(http.StatusInternalServerError, "UNKNOWN ERROR")
+			return
+		}
+
 		// 无限下载
 		if singleItem.DownCount == common.INFINITE_DOWNLOAD {
 			c.String(http.StatusOK, "OK")
@@ -46,12 +65,14 @@ func DownloadCount(c *gin.Context) {
 			err := DeleteItem(singleItem.Bucket, singleItem.Path)
 			if err != nil {
 				log.Println("Cannot delete item in bucket ", singleItem.Bucket, ", path ", singleItem.Path)
+			} else {
+				// 删除数据库记录
+				db.Delete(&singleItem)
+			 	c.String(http.StatusOK, "DELETED")
+				return
 			}
 
-			// 删除数据库记录
-			db.Delete(&singleItem)
-
-			c.String(http.StatusOK, "DELETED")
+			c.String(http.StatusInternalServerError, "UNKNOWN ERROR")
 			return
 		}
 
@@ -65,33 +86,50 @@ func DownloadCount(c *gin.Context) {
 
 	isDelete, isMinus := false, false
 	for _, item := range itemList {
-		// 检查是否为当前文件，次数无限直接返回
-		if item.DownCount == common.INFINITE_DOWNLOAD && item.Bucket == bucket && item.Path == path {
+		shouldDelete := false
+
+		// 检查有效期
+		if item.ExpiredAt.Before(time.Now()) {
+			// 文件过期
+			// 标记
+			shouldDelete = true
+		}
+
+		// 检查是否为当前文件，次数无限且时间有效直接返回
+		if item.DownCount == common.INFINITE_DOWNLOAD &&
+			item.Bucket == bucket &&
+			item.Path == path &&
+			!shouldDelete {
+
 			c.String(http.StatusOK, "OK")
 			return
 		}
 
-		// 当前文件下载次数--
-		if item.DownCount != common.INFINITE_DOWNLOAD && item.Bucket == bucket && item.Path == path {
+		// 更新当前文件下载次数--
+		if item.DownCount != common.INFINITE_DOWNLOAD &&
+			item.Bucket == bucket &&
+			item.Path == path &&
+			!shouldDelete {
+
 			item.DownCount -= 1
 			db.Model(&item).Update("down_count", item.DownCount)
 			log.Println(c.ClientIP(), " Item ", item.ID, " remain downloadable count: ", item.DownCount)
 			isMinus = true
 		}
 
-		if item.DownCount == common.INFINITE_DOWNLOAD {
+		if item.DownCount == common.INFINITE_DOWNLOAD && !shouldDelete {
 			continue
-		} else if item.DownCount <= 0 {
-			// 删除文件组中的过期文件
+		} else if item.DownCount <= 0 || shouldDelete {
+			// 删除文件组中该无效文件
 			err := DeleteItem(item.Bucket, item.Path)
 			if err != nil {
 				log.Println("Cannot delete item in bucket ", item.Bucket, ", path ", item.Path)
+			} else {
+				// 删除数据库记录
+				db.Delete(&item)
+				log.Println(c.ClientIP(), " Deleted item id ", item.ID, " by retrieve code \"", retrieveCode, "\"")
+				isDelete = true
 			}
-
-			// 删除数据库记录
-			db.Delete(&item)
-			log.Println(c.ClientIP(), " Deleted item id ", item.ID, " by retrieve code \"", retrieveCode, "\"")
-			isDelete = true
 		}
 	}
 
