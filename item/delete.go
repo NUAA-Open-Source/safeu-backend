@@ -102,7 +102,7 @@ func DeleteItem(bucketName string, objectName string) error {
 		break
 	}
 	if err != nil {
-		log.Fatalln(bucketName, "Aliyun OSS get bucket error: ", err, ", retries out")
+		log.Println(bucketName, "Aliyun OSS get bucket error: ", err, ", retries out")
 		return err
 	}
 
