@@ -555,6 +555,7 @@ func BuildItemFromCallBack(info FileInfo) *Item {
 	var item Item
 	endpoint := common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Base
 	host := fmt.Sprintf("%s://%s.%s/%s", common.DEFAULT_PROTOCOL, info.Bucket, endpoint, info.Object)
+	h, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
 	item.Status = common.UPLOAD_BEGIN
 	item.Name = uuid.Must(uuid.NewV4()).String()
 	item.OriginalName = info.Object[23:] // 截取时间戳后的文件名称
@@ -567,5 +568,6 @@ func BuildItemFromCallBack(info FileInfo) *Item {
 	item.Bucket = info.Bucket
 	item.Endpoint = endpoint
 	item.Path = info.Object
+	item.ExpiredAt = time.Now().Add(h) //初始化过期时间为当前时间的8小时后
 	return &item
 }

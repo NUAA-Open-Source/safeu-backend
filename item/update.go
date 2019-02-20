@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"log"
 	"net/http"
+	"time"
 
 	"a2os/safeu-backend/common"
 
@@ -27,6 +28,53 @@ type ChangeReCodeBody struct {
 type ChangeDownCountBody struct {
 	NewDownCount int    `json:"new_down_count"`
 	UserToken    string `json:"user_token"`
+}
+
+type ChangeExpireTimeBody struct {
+	NewExpireTime int    `json:"new_expire_time"`
+	UserToken     string `json:"user_token"`
+}
+
+// 修改过期时间
+func ChangeExpireTime(c *gin.Context) {
+	retrieveCode := c.Param("retrieveCode")
+	var changeExpireTimeBody ChangeExpireTimeBody
+	err := c.BindJSON(&changeExpireTimeBody)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err,
+		})
+		return
+	}
+	// 时间长度检查
+	if changeExpireTimeBody.NewExpireTime > common.FILE_MAX_EXIST_TIME || changeExpireTimeBody.NewExpireTime <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "The length of the time is not within the right range",
+		})
+		return
+	}
+	tokenRedisClient := common.GetUserTokenRedisClient()
+	files, err := tokenRedisClient.SMembers(changeExpireTimeBody.UserToken).Result()
+	if len(files) == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Can`t Find User Token",
+		})
+		return
+	}
+	db := common.GetDB()
+	// 获取创建时间
+	var item Item
+	db.Where("name = ? AND status = ? AND re_code = ?", files[0], common.UPLOAD_FINISHED, retrieveCode).First(&item)
+	h, _ := time.ParseDuration("1h")
+	newTime := item.CreatedAt.Add(time.Duration(changeExpireTimeBody.NewExpireTime) * h)
+	for _, value := range files {
+		db.Model(&Item{}).Where("name = ? AND status = ? AND re_code = ?", value, common.UPLOAD_FINISHED, retrieveCode).Update(map[string]interface{}{"expired_at": newTime})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": newTime,
+	})
+	return
 }
 
 // 修改密码
