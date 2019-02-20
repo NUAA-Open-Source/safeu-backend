@@ -80,6 +80,7 @@ func main() {
 		v1.POST("/delete/:retrieveCode",item.DeleteManual)
 		v1.GET("/downCount/:retrieveCode", item.DownloadCount)
 		v1.POST("/downCount/:retrieveCode", item.ChangeDownCount)
+		v1.POST("/expireTime/:retrieveCode",item.ChangeExpireTime)
 		v1.POST("/item/:retrieveCode", item.DownloadItems)
 		v1.POST("/validation/:retrieveCode", item.Validation)
 	}

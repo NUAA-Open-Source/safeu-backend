@@ -26,6 +26,10 @@ const (
 	FILE_DELETED           // 4
 )
 
+// 文件时长
+const FILE_DEFAULT_EXIST_TIME = "8h" //文件创建默认存在时长
+const FILE_MAX_EXIST_TIME = 24       //文件最大存在时长
+
 // 压缩包/归档类型
 const (
 	ARCHIVE_NULL   = iota // 0，非压缩包
