@@ -17,10 +17,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"a2os/safeu-backend/common"
 	"a2os/safeu-backend/item"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -60,9 +62,25 @@ func main() {
 
 	// DEBUG or RELEASE
 	if common.DEBUG {
+		r.Use(cors.New(cors.Config{
+			AllowAllOrigins:  true,
+			AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+			AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
+			AllowCredentials: false,
+			MaxAge:           12 * time.Hour,
+		}))
 		gin.SetMode(gin.DebugMode)
-		r.Use(CORS())
+		//r.Use(CORS())
 	} else {
+		// RELEASE Mode
+		r.Use(cors.New(cors.Config{
+			AllowOrigins: common.CORS_RELEASE,
+			AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+			AllowHeaders: []string{"Origin"},
+			// 若前端也发送此处为 true，此处安全性会更高
+			AllowCredentials: false,
+			MaxAge:           12 * time.Hour,
+		}))
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -77,10 +95,10 @@ func main() {
 		item.UploadRegister(v1.Group("/upload"))
 		v1.POST("/password/:retrieveCode", item.ChangePassword)
 		v1.POST("/recode/:retrieveCode", item.ChangeRecode)
-		v1.POST("/delete/:retrieveCode",item.DeleteManual)
+		v1.POST("/delete/:retrieveCode", item.DeleteManual)
 		v1.GET("/downCount/:retrieveCode", item.DownloadCount)
 		v1.POST("/downCount/:retrieveCode", item.ChangeDownCount)
-		v1.POST("/expireTime/:retrieveCode",item.ChangeExpireTime)
+		v1.POST("/expireTime/:retrieveCode", item.ChangeExpireTime)
 		v1.POST("/item/:retrieveCode", item.DownloadItems)
 		v1.POST("/validation/:retrieveCode", item.Validation)
 	}
@@ -88,18 +106,18 @@ func main() {
 	r.Run(":" + common.PORT) // listen and serve on 0.0.0.0:PORT
 }
 
-func CORS() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	}
-}
+//func CORS() gin.HandlerFunc {
+//	return func(c *gin.Context) {
+//		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+//		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+//		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+//		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+//
+//		if c.Request.Method == "OPTIONS" {
+//			c.AbortWithStatus(204)
+//			return
+//		}
+//
+//		c.Next()
+//	}
+//}
