@@ -53,3 +53,11 @@ const (
 	RECODE
 	TASK_QUEUE // 1
 )
+
+// Cross-sites resource sharing settings
+var CORS_RELEASE = []string{
+	"https://safeu.a2os.club",
+	"https://test.safeu.a2os.club",
+	"http://safeu.a2os.club",
+	"http://test.safeu.a2os.club",
+}
