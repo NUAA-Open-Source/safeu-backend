@@ -119,7 +119,8 @@ func DownloadCount(c *gin.Context) {
 
 		if item.DownCount == common.INFINITE_DOWNLOAD && !shouldDelete {
 			continue
-		} else if item.DownCount <= 0 || shouldDelete {
+		} else if item.DownCount < 0 || shouldDelete {
+			// 可下载次数小于 0 时才被动清除，否则存在剩余 1 次下载点击后直接触发删除的问题
 			// 删除文件组中该无效文件
 			err := DeleteItem(item.Bucket, item.Path)
 			if err != nil {

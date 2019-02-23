@@ -130,7 +130,7 @@ func DownloadItems(c *gin.Context) {
 
 		// 检查剩余下载次数
 		// 若为 0 次则返回 410 Gone 并删除文件
-		if singleItem.DownCount == 0 {
+		if singleItem.DownCount <= 0 && singleItem.DownCount != common.INFINITE_DOWNLOAD {
 			// 删除文件
 			err := DeleteItem(singleItem.Bucket, singleItem.Path)
 			if err != nil {
