@@ -558,9 +558,10 @@ func BuildItemFromCallBack(info FileInfo) *Item {
 	h, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
 	item.Status = common.UPLOAD_BEGIN
 	item.Name = uuid.Must(uuid.NewV4()).String()
+	// 目前的目录格式为: items/2019-02-23 09:43:27.63/your_file_name，因此第 29 个字符开始才是文件原名
 	item.OriginalName = info.Object[29:] // 截取时间戳后的文件名称
 	item.Host = host
-	item.DownCount = common.INFINITE_DOWNLOAD
+	item.DownCount = common.FILE_DEFAULT_DOWNCOUNT
 	item.Type = info.MimeType
 	item.IsPublic = true
 	item.ArchiveType = common.ARCHIVE_NULL
