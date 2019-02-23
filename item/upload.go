@@ -68,7 +68,7 @@ func get_policy_token() string {
 	expire_end := now + expire_time
 	var tokenExpire = get_gmt_iso8601(expire_end)
 	//upload_dir
-	upload_dir := time.Now().Format("2006-01-02 15:04:05.00") + "/"
+	upload_dir := "items/" + time.Now().Format("2006-01-02 15:04:05.00") + "/"
 	//create post policy json
 	var config ConfigStruct
 	config.Expiration = tokenExpire
@@ -558,7 +558,7 @@ func BuildItemFromCallBack(info FileInfo) *Item {
 	h, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
 	item.Status = common.UPLOAD_BEGIN
 	item.Name = uuid.Must(uuid.NewV4()).String()
-	item.OriginalName = info.Object[23:] // 截取时间戳后的文件名称
+	item.OriginalName = info.Object[29:] // 截取时间戳后的文件名称
 	item.Host = host
 	item.DownCount = common.INFINITE_DOWNLOAD
 	item.Type = info.MimeType

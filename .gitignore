@@ -11,6 +11,9 @@ conf/cloud.yml
 # Ignore GoLand config files
 .idea/
 
+# Ignore VS Code config files
+.vscode/
+
 # Ignore fresh tmp files
 tmp/
 
