@@ -71,20 +71,19 @@ func main() {
 	if common.DEBUG {
 		r.Use(cors.New(cors.Config{
 			AllowAllOrigins:  true,
-			AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
-			AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
-			AllowCredentials: false,
+			AllowMethods:     common.CORS_ALLOW_METHODS,
+			AllowHeaders:     common.CORS_ALLOW_HEADERS,
+			AllowCredentials: true,
 			MaxAge:           12 * time.Hour,
 		}))
 		//r.Use(CORS())
 	} else {
 		// RELEASE Mode
 		r.Use(cors.New(cors.Config{
-			AllowOrigins: common.CORS_RELEASE,
-			AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-			AllowHeaders: []string{"Origin"},
-			// 若前端也发送此处为 true，此处安全性会更高
-			AllowCredentials: false,
+			AllowOrigins:     common.CORS_ALLOW_ORIGINS,
+			AllowMethods:     common.CORS_ALLOW_METHODS,
+			AllowHeaders:     common.CORS_ALLOW_HEADERS,
+			AllowCredentials: true,
 			MaxAge:           12 * time.Hour,
 		}))
 	}
