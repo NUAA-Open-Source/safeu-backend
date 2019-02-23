@@ -28,9 +28,9 @@ import (
 )
 
 func Migrate(db *gorm.DB) {
-	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 auto_increment=1").AutoMigrate(&item.Item{})
-	db.AutoMigrate(&common.Config{})
-	db.AutoMigrate(&item.Token{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&item.Item{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&common.Config{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&item.Token{})
 }
 func init() {
 	//DB init
