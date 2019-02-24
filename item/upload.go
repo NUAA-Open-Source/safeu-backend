@@ -68,7 +68,7 @@ func get_policy_token() string {
 	expire_end := now + expire_time
 	var tokenExpire = get_gmt_iso8601(expire_end)
 	//upload_dir
-	upload_dir := time.Now().Format("2006-01-02 15:04:05.00") + "/"
+	upload_dir := "items/" + time.Now().Format("2006-01-02 15:04:05.00") + "/"
 	//create post policy json
 	var config ConfigStruct
 	config.Expiration = tokenExpire
@@ -558,9 +558,10 @@ func BuildItemFromCallBack(info FileInfo) *Item {
 	h, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
 	item.Status = common.UPLOAD_BEGIN
 	item.Name = uuid.Must(uuid.NewV4()).String()
-	item.OriginalName = info.Object[23:] // 截取时间戳后的文件名称
+	// 目前的目录格式为: items/2019-02-23 09:43:27.63/your_file_name，因此第 29 个字符开始才是文件原名
+	item.OriginalName = info.Object[29:] // 截取时间戳后的文件名称
 	item.Host = host
-	item.DownCount = common.INFINITE_DOWNLOAD
+	item.DownCount = common.FILE_DEFAULT_DOWNCOUNT
 	item.Type = info.MimeType
 	item.IsPublic = true
 	item.ArchiveType = common.ARCHIVE_NULL
