@@ -1,5 +1,6 @@
 # Ignore docker database volume
 db-data/
+data/
 
 # Ignore binary file
 safeu-backend
