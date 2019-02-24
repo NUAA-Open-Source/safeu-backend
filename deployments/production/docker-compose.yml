@@ -1,0 +1,62 @@
+version: '3'
+services:
+  web1:
+    build:
+      context: ../..
+      dockerfile: ././build/package/safeu-backend/Dockerfile-compose
+    volumes:
+      - ../..:$GOPATH/src/a2os/safeu-backend/
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - "8080:8080"
+    networks:
+      - lbnet
+      - dbnet
+    depends_on:
+      - db
+      - redis
+    restart: always
+  web2:
+    build:
+      context: ../..
+      dockerfile: ././build/package/safeu-backend/Dockerfile-compose
+    volumes:
+      - ../..:$GOPATH/src/a2os/safeu-backend/
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - "8081:8080"
+    networks:
+      - lbnet
+      - dbnet
+    depends_on:
+      - db
+      - redis
+    restart: always
+  db:
+    environment:
+      - TZ=Asia/Shanghai
+      - MYSQL_ROOT_PASSWORD=safeu
+      - MYSQL_DATABASE=safeu
+    image: mariadb:10.3
+    volumes:
+      - ../../data/maraidb:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - dbnet
+    restart: on-failure
+  redis:
+    image: redis:5.0.3-alpine
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - "6379:6379"
+    networks:
+      - dbnet
+    restart: always
+
+networks:
+  lbnet:
+  dbnet:
