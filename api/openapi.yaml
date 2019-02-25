@@ -31,12 +31,401 @@ tags:
     description: Upload item(s) operations
   - name: update
     description: Update item(s) operations
+  - name: delete
+    description: delete item(s) operations
   - name: download
     description: Download item(s) operations
   - name: validation
     description: Validation operations
 paths:
+  /v1/upload/policy:
+    get:
+      tags:
+        - upload
+      summary: 上传策略请求
+      responses:
+        "200":
+          description: 成功获得上传策略
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  accessid:
+                    type: string
+                    description: 用户请求的accessid
+                  host:
+                    type: string
+                    description: 用户要往哪个域名发送上传请求
+                  expire:
+                    type: string
+                    description: 上传策略Policy失效时间，在服务端指定。失效时间之前都可以利用此Policy上传文件，无需每次上传都去服务端获取签名
+                  signature:
+                    type: string
+                    description: 对变量policy签名后的字符串
+                  policy:
+                    type: string
+                    description: 用户表单上传的策略（Policy），是经过base64编码过的字符串
+                  dir:
+                    type: string
+                    description: 上传路径
+                  callback:
+                    type: string
+                    description: 回调设置代码，采用base64编码
+
+  /v1/upload/callback:
+    post:
+      tags:
+        - upload
+      summary: 阿里云OSS回调用户文件信息，鉴权后返回结果由OSS转发给用户
+      responses:
+        "200":
+          description: authorization验证通过
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    description: 文件uuid
+  /v1/upload/finish:
+    post:
+      tags:
+        - upload
+      summary: 结束所有上传文件的上传操作
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    example: fe5305b4-e0c8-490b-b3dc-eb523e699a07
+                  description: 文件列表
+      responses:
+        "200":
+          description: 结束文件上传成功
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  owner:
+                    type: string
+                    description: 文件所有者信息
+                  recode:
+                    type: string
+                    description: 文件提取码
+
+  /v1/password/{retrieveCode}:
+    post:
+      tags:
+        - update
+      summary: 修改文件密码
+      operationId: changeFilePassword
+      parameters:
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                user_token:
+                  type: string
+                  description: 文件所有者信息
+                auth:
+                  type: string
+                  description: 哈希后的密码 如果为空 则取消设置密码
+
+      responses:
+        "200":
+          description: 成功修改文件密码
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: "string"
+                    example: ok
+                    description: 修改成功
+        "401":
+          description: 文件所有者信息不存在
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Can`t Find User Token
+                    description: 文件所有者信息不存在
+        "500":
+          description: 服务器错误
+          content:
+            "text/plain":
+              schema:
+                type: string
+                description: 未知错误
+
+  /v1/recode/{retrieveCode}:
+    post:
+      tags:
+        - update
+      summary: 修改文件提取码
+      operationId: changeFileRetrieveCode
+      parameters:
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                user_token:
+                  type: string
+                  description: 文件所有者信息
+                new_re_code:
+                  type: string
+                  description: 新的提取码
+                auth:
+                  type: string
+                  required: false
+                  description: 新的哈希过的密码 如果修改的文件此前有密码需要提供此字段
+      responses:
+        "200":
+          description: 成功修改文件提取码
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: "string"
+                    example: ok
+                    description: 修改成功
+        "400":
+          description: 提供字段不正确
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: reCode Repeat/require Auth
+                    description: 提取码重复/需要新的哈希密码
+        "401":
+          description: 文件所有者信息不存在
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Can`t Find User Token
+                    description: 文件所有者信息不存在
+        "500":
+          description: 服务器错误
+          content:
+            "text/plain":
+              schema:
+                type: string
+                description: 未知错误
+
+  /v1/expireTime/{retrieveCode}:
+    post:
+      tags:
+        - update
+      summary: 修改文件过期时间
+      operationId: changeFileExpireTime
+      parameters:
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                user_token:
+                  type: string
+                  description: 文件所有者信息
+                new_expire_time:
+                  type: number
+                  example: 1-24
+                  description: 文件新过期时间
+      responses:
+        "200":
+          description: 成功修改文件过期时间
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: "string"
+                    example: 2019-02-19T19:28:32+08:00
+                    description: 修改成功返回新的过期时间
+        "400":
+          description: 新的文件过期时间不正确
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: The length of the time is not within the right range
+                    description: 新的文件过期时间不正确
+
+        "401":
+          description: 文件所有者信息不存在
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Can`t Find User Token
+                    description: 文件所有者信息不存在
+        "500":
+          description: 服务器错误
+          content:
+            "text/plain":
+              schema:
+                type: string
+                description: 未知错误
+
+  /v1/delete/{retrieveCode}:
+    post:
+      tags:
+        - delete
+      summary: 手动删除文件接口
+      operationId: deleteFileManual
+      parameters:
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                user_token:
+                  type: string
+                  description: 文件所有者信息
+      responses:
+        "200":
+          description: 成功修改删除文件
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: "string"
+                    example: ok
+                    description: 删除成功
+        "401":
+          description: 文件所有者信息不存在
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Can`t Find User Token
+                    description: 文件所有者信息不存在
+        "500":
+          description: 服务器错误
+          content:
+            "text/plain":
+              schema:
+                type: string
+                description: 未知错误
+
   /v1/downCount/{retrieveCode}:
+    post:
+      tags:
+        - update
+      summary: 修改文件下载次数
+      operationId: changeFileDownCount
+      parameters:
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                user_token:
+                  type: string
+                  description: 文件所有者信息
+                new_down_count:
+                  type: string
+                  description: 新的下载次数
+      responses:
+        "200":
+          description: 成功修改文件下载次数
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: "string"
+                    example: ok
+                    description: 修改成功
+        "401":
+          description: 文件所有者信息不存在
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Can`t Find User Token
+                    description: 文件所有者信息不存在
+        "500":
+          description: 服务器错误
+          content:
+            "text/plain":
+              schema:
+                type: string
+                description: 未知错误
     get:
       tags:
         - download
@@ -62,27 +451,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: 成功接收下载信息
           content:
-            'text/plain':
+            "text/plain":
               schema:
                 type: string
                 description: 数据操作（OK，MINUS，DELETED）
-        '404':
+        "404":
           description: 无法找到资源
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
                   error:
                     type: string
                     description: 错误原因
-        '500':
+        "500":
           description: 服务器错误
           content:
-            'text/plain':
+            "text/plain":
               schema:
                 type: string
                 description: 未知错误
@@ -109,64 +498,64 @@ paths:
             type: string
       requestBody:
         content:
-          'application/json':
+          "application/json":
             schema:
-              $ref: '#/components/schemas/PackRequest'
+              $ref: "#/components/schemas/PackRequest"
       responses:
-        '200':
+        "200":
           description: 成功获取文件（组）下载链接
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
                   url:
                     type: string
                     description: 文件（组）下载链接
-        '400':
+        "400":
           description: 无法获得文件列表
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
                   error:
                     type: string
                     description: 错误原因
-        '401':
+        "401":
           description: 认证失败
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
                   error:
                     type: string
                     description: 错误原因
-        '404':
+        "404":
           description: 无法找到资源/认证口令
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
                   error:
                     type: string
                     description: 错误原因
-        '410':
+        "410":
           description: 下载次数耗尽
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
                   error:
                     type: string
                     description: 错误原因
-        '503':
+        "503":
           description: 无法提供服务
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
@@ -189,7 +578,7 @@ paths:
             type: string
       requestBody:
         content:
-         'application/json':
+          "application/json":
             schema:
               type: object
               properties:
@@ -197,10 +586,10 @@ paths:
                   type: string
                   description: 文件提取密码
       responses:
-        '200':
+        "200":
           description: 认证成功
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
@@ -208,31 +597,31 @@ paths:
                     type: string
                     description: 临时认证口令
                   items:
-                    $ref: '#/components/schemas/ItemGroup'
-        '401':
+                    $ref: "#/components/schemas/ItemGroup"
+        "401":
           description: 需要密码 / 密码认证失败
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
                   error:
                     type: string
                     description: 错误原因
-        '404':
+        "404":
           description: 无法通过该提取码找到文件
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
                   error:
                     type: string
                     description: 错误原因
-        '500':
+        "500":
           description: 资源不可用
           content:
-            'application/json':
+            "application/json":
               schema:
                 type: object
                 properties:
@@ -309,7 +698,7 @@ components:
     ItemGroup:
       type: array
       items:
-        $ref: '#/components/schemas/Item'
+        $ref: "#/components/schemas/Item"
       description: 文件组
     ZipItem:
       type: object
@@ -341,5 +730,4 @@ components:
           type: array
           description: 待打包/下载文件
           items:
-            $ref: '#/components/schemas/ZipItem'
-          
+            $ref: "#/components/schemas/ZipItem"
