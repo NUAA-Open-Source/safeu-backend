@@ -12,11 +12,17 @@
     - [Databases Config](#databases-config)
       - [MariaDB](#mariadb)
       - [Redis](#redis)
-    - [Public Cloud Services Config](#public-cloud-services-config)
-  - [Build from Source](#build-from-source)
-  - [Run via Docker](#run-via-docker)
-  - [Run via Docker Compose (Recommend)](#run-via-docker-compose-recommend)
-  - [Scripts](#scripts)
+    - [Cloud Services Config](#cloud-services-config)
+  - [Release Mode](#release-mode)
+  - [Deploy (Development Environment)](#deploy-development-environment)
+    - [Build from Source](#build-from-source)
+    - [Run via Docker](#run-via-docker)
+    - [Run via Docker Compose (Recommend)](#run-via-docker-compose-recommend)
+    - [Scripts](#scripts)
+  - [Deploy (Production Environment)](#deploy-production-environment)
+    - [Build from Source](#build-from-source-1)
+    - [Run via Docker](#run-via-docker-1)
+    - [Run via Docker Compose (Recommend)](#run-via-docker-compose-recommend-1)
   - [FaaS](#faas)
   - [Code of Conducts](#code-of-conducts)
   - [API Documentation](#api-documentation)
@@ -69,13 +75,21 @@ CREATE DATABASE safeu;
 
 本应用依赖 Redis，需要在 `conf/db.json` 中填好 Redis 相关配置。
 
-### Public Cloud Services Config
+### Cloud Services Config
 
-公有云有关配置。
+云有关配置。
 
 在 `conf/` 下新建并填写 `cloud.yml` 文件，具体请参照 `conf/cloud.exmaple.yml` 。
 
-## Build from Source
+## Release Mode
+
+若用于生产环境部署，则建议使用 `RELEASE` 模式：
+
+将 `common/const.go` 中的 `DEBUG` 变量更改为 `false` ，再重新构建容器镜像/运行即可。
+
+## Deploy (Development Environment)
+
+### Build from Source
 
 ```bash
 $ git clone https://github.com/Triple-Z/safeu-backend.git
@@ -87,7 +101,7 @@ $ go run main.go
 
 > 要事先做好数据库的建立和配置。
 
-## Run via Docker
+### Run via Docker
 
 通过 Docker 容器来运行应用。
 
@@ -101,7 +115,7 @@ $ ./run-dev-docker-containers.sh
 
 > 要事先做好数据库的建立和配置。
 
-## Run via Docker Compose (Recommend)
+### Run via Docker Compose (Recommend)
 
 通过 Docker Compose 编排运行应用。
 
@@ -112,9 +126,9 @@ $ cd scripts/
 $ ./docker-compose-up-development.sh
 ```
 
-> 需要安装 `docker` 和 `docker-compose` ，可用 `scripts/install-docker-family-on-ubuntu-1804.sh` 在 Ubuntu 18.04 中安装 Docker 和 Docker Compose。该脚本为中国网络环境额外定制，保证安装速度。
+> 需要安装 `docker` 和 `docker-Publicompose` ，可用 `scripts/install-docker-family-on-ubuntuPublic1804.sh` 在 Ubuntu 18.04 中安装 Docker 和 DPubliccker Compose。该脚本为中国网络环境额外定制，Public证安装速度。
 
-## Scripts
+### Scripts
 
 所有的脚本文件应在脚本目录下运行。如 `scripts/build-docker-images.sh` 应这样运行：
 
@@ -122,6 +136,41 @@ $ ./docker-compose-up-development.sh
 $ cd scripts
 $./build-docker-images.sh
 ```
+
+## Deploy (Production Environment)
+
+### Build from Source
+
+与 [Deployment (Development Environment) > Build from Source](#build-from-source) 方法相同。
+
+### Run via Docker
+
+通过 Docker 容器来运行应用。
+
+在 `scripts/` 文件夹中有这样两个脚本：`build-docker-images.sh` 和 `run-production-docker-containers.sh` 。前者用于构建本应用的 Docker 容器镜像，后者用于启动该应用。但要注意，在该这种方式中未含有数据库容器，因此需要额外提供数据库支持，需编写 `conf/db.json` 数据库配置文件及 `conf/cloud.yml` 云配置文件。
+
+```bash
+$ cd scripts/
+$ ./build-docker-images.sh
+$ ./run-production-docker-containers.sh
+```
+
+> 要事先做好数据库的建立和配置；
+> 
+> 若用于生产环境部署，建议使用 `RELEASE` 模式，详情参照 [Release Mode](#release-mode)。
+
+### Run via Docker Compose (Recommend)
+
+通过 Docker Compose 编排运行应用。
+
+该方法中已自带 MariaDB 数据库，无需额外提供数据库服务。
+
+```bash
+$ cd scripts/
+$ ./docker-compose-up-production.sh
+```
+
+> 需要安装 `docker` 和 `docker-compose` ，可用 `scripts/install-docker-family-on-ubuntu-1804.sh` 在 Ubuntu 18.04 中安装 Docker 和 Docker Compose。该脚本为中国网络环境额外定制，保证安装速度。
 
 ## FaaS
 
