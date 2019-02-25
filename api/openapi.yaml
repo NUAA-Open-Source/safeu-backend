@@ -205,7 +205,6 @@ paths:
                   description: 新的提取码
                 auth:
                   type: string
-                  required: false
                   description: 新的哈希过的密码 如果修改的文件此前有密码需要提供此字段
       responses:
         "200":
