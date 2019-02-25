@@ -2,8 +2,9 @@
 db-data/
 data/
 
-# Ignore binary file
+# Ignore binary file and only file
 safeu-backend
+!safeu-backend/
 
 # Ignore config file
 conf/db.json
