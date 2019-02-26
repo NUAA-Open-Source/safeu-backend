@@ -1,18 +1,18 @@
 package common
 
 import (
-	"os"
 	"log"
+	"os"
 )
 
 var (
 	logFile *os.File
-	err error
+	err     error
 )
 
 func InitLogger() {
 
-	_ = os.Mkdir("log", os.ModePerm)
+	os.Mkdir("log", os.ModePerm|os.ModeDir)
 	logFile, err = os.OpenFile("log/safeu.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		log.Fatal(err)
@@ -22,6 +22,6 @@ func InitLogger() {
 	}
 }
 
-func GetLogFile() (*os.File) {
+func GetLogFile() *os.File {
 	return logFile
 }

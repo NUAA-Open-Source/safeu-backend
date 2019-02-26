@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"time"
 
@@ -25,7 +26,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"io"
 )
 
 func Migrate(db *gorm.DB) {
@@ -34,13 +34,6 @@ func Migrate(db *gorm.DB) {
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&item.Token{})
 }
 func init() {
-
-	//_ = os.Mkdir("log", os.ModePerm)
-	//logFile, err := os.OpenFile("log/safeu-backend.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//log.SetOutput(logFile)
 
 	// Logger init
 	common.InitLogger()
