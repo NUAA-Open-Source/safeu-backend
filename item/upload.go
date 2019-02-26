@@ -481,7 +481,8 @@ func FinishUpload(c *gin.Context) {
 	owner := common.RandStringBytesMaskImprSrc(common.UserTokenLength)
 	// 将提取码推入Redis
 	reCodeRedisClient := common.GetReCodeRedisClient()
-	reCodeRedisClient.Set(reCode, owner, 0)
+	redisExpireTime, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
+	reCodeRedisClient.Set(reCode, owner, redisExpireTime)
 	// 将用户识别码推入Redis
 	tokenRedisClient := common.GetUserTokenRedisClient()
 	tokenRedisClient.SAdd(owner, files)

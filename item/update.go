@@ -153,13 +153,13 @@ func ChangeRecode(c *gin.Context) {
 	//2 合法性检测
 	// 2.1 在Redis中判断提取码重复
 	reCodeRedisClient := common.GetReCodeRedisClient()
-	if KeyISExistInRedis(changeRecodeBody.NewReCode, reCodeRedisClient) {
-		log.Println("Find reCode Repeat In Redis", changeRecodeBody.NewReCode)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "reCode Repeat",
-		})
-		return
-	}
+	//if KeyISExistInRedis(changeRecodeBody.NewReCode, reCodeRedisClient) {
+	//	//	log.Println("Find reCode Repeat In Redis", changeRecodeBody.NewReCode)
+	//	//	c.JSON(http.StatusBadRequest, gin.H{
+	//	//		"message": "reCode Repeat",
+	//	//	})
+	//	//	return
+	//	//}
 	// 2.2 在DB中判断判断提取码重复
 	db := common.GetDB()
 	if CheckReCodeRepeatInDB(changeRecodeBody.NewReCode, db) {

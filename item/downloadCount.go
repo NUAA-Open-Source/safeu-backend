@@ -44,6 +44,7 @@ func DownloadCount(c *gin.Context) {
 			} else {
 				// 删除数据库记录
 				db.Delete(&singleItem)
+				common.DeleteRedisRecodeFromRecode(singleItem.ReCode)
 				c.String(http.StatusOK, "DELETED")
 				return
 			}
@@ -68,6 +69,7 @@ func DownloadCount(c *gin.Context) {
 			} else {
 				// 删除数据库记录
 				db.Delete(&singleItem)
+				common.DeleteRedisRecodeFromRecode(singleItem.ReCode)
 				c.String(http.StatusOK, "DELETED")
 				return
 			}
@@ -128,6 +130,7 @@ func DownloadCount(c *gin.Context) {
 			} else {
 				// 删除数据库记录
 				db.Delete(&item)
+				common.DeleteRedisRecodeFromRecode(item.ReCode)
 				log.Println(c.ClientIP(), " Deleted item id ", item.ID, " by retrieve code \"", retrieveCode, "\"")
 				isDelete = true
 			}

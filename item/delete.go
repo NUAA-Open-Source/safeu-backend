@@ -42,6 +42,8 @@ func DeleteManual(c *gin.Context) {
 		db.Delete(item)
 	}
 	DeleteItems(itemList)
+	//清理Redis
+	common.DeleteRedisRecodeFromRecode(itemList[0].ReCode)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "ok",
 	})

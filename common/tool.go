@@ -1,8 +1,12 @@
 package common
 
 import (
+	"fmt"
+	"log"
 	"math/rand"
 	"time"
+
+	"github.com/go-redis/redis"
 )
 
 // 生成随机字符串
@@ -30,4 +34,25 @@ func RandStringBytesMaskImprSrc(n int) string {
 	}
 
 	return string(b)
+}
+
+func DeleteRedisRecodeFromRecode(recode string) {
+	tokenRedisClient := GetUserTokenRedisClient()
+	reCodeRedisClient := GetReCodeRedisClient()
+	if !KeyISExistInRedis(recode, reCodeRedisClient) {
+		log.Println(fmt.Errorf("key %s is not in reCodeRedis", recode))
+	}
+	userToken := reCodeRedisClient.Get(recode).Val()
+	if !KeyISExistInRedis(userToken, tokenRedisClient) {
+		log.Println(fmt.Errorf("recode %s is in reCodeRedis,But key %s is not in userTokenRedis", recode, userToken))
+	}
+	reCodeRedisClient.Del(recode)
+	tokenRedisClient.Del(userToken)
+}
+
+func KeyISExistInRedis(str string, client *redis.Client) bool {
+	if client.Exists(str).Val() == 0 {
+		return false
+	}
+	return true
 }
