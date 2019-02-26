@@ -1,3 +1,6 @@
+# Ignore log files
+log/
+
 # Ignore docker database volume
 db-data/
 data/

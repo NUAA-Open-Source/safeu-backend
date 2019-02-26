@@ -3,7 +3,7 @@ package common
 var CloudConfig *CloudConfiguration
 
 const (
-	DEBUG bool   = true
+	DEBUG bool   = false
 	PORT  string = "8080"
 )
 
