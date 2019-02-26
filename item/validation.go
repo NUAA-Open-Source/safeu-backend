@@ -179,7 +179,7 @@ func CheckDownCountAndExpiredTime(db *gorm.DB, retrieveCode string) ([]Item, err
 
 			// 删除数据库记录
 			db.Delete(&item)
-
+			common.DeleteRedisRecodeFromRecode(item.ReCode)
 			itemList = append(itemList[:j], itemList[j+1:]...)
 			deleted++
 			continue
@@ -197,7 +197,7 @@ func CheckDownCountAndExpiredTime(db *gorm.DB, retrieveCode string) ([]Item, err
 
 			// 删除数据库记录
 			db.Delete(&item)
-
+			common.DeleteRedisRecodeFromRecode(item.ReCode)
 			itemList = append(itemList[:j], itemList[j+1:]...)
 			deleted++
 			continue

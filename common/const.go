@@ -33,6 +33,9 @@ const FILE_MAX_EXIST_TIME = 24       //文件最大存在时长
 // 文件默认可下载次数
 const FILE_DEFAULT_DOWNCOUNT = 10
 
+// 文件签名下载签名过期时长 单位:秒
+const FILE_DOWNLOAD_SIGNURL_TIME = 60
+
 // 压缩包/归档类型
 const (
 	ARCHIVE_NULL   = iota // 0，非压缩包

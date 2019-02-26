@@ -9,6 +9,7 @@ import (
 
 	"a2os/safeu-backend/common"
 
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/json"
 	"github.com/satori/go.uuid"
@@ -119,7 +120,7 @@ func DownloadItems(c *gin.Context) {
 
 			// 删除数据库记录
 			db.Delete(&singleItem)
-
+			common.DeleteRedisRecodeFromRecode(singleItem.ReCode)
 			// 返回 410 Gone
 			c.JSON(http.StatusGone, gin.H{
 				"error": "Over the expired time.",
@@ -139,7 +140,7 @@ func DownloadItems(c *gin.Context) {
 
 			// 删除数据库记录
 			db.Delete(&singleItem)
-
+			common.DeleteRedisRecodeFromRecode(singleItem.ReCode)
 			c.JSON(http.StatusGone, gin.H{
 				"error": "Out of downloadable count.",
 			})
@@ -305,4 +306,20 @@ func GetZipEndpoint() (string, error) {
 	}
 
 	return zipEndpoint, nil
+}
+
+// 获取签名URL
+func GetSignURL(itemBucket string, itemPath string, client *oss.Client) (string, error) {
+
+	bucket, err := client.Bucket(itemBucket)
+	if err != nil {
+		log.Println(fmt.Sprintf("Func: GetSignURL Get Client %v Bucket %s Failed %s", client, itemBucket, err.Error()))
+		return "", err
+	}
+	signedURL, err := bucket.SignURL(itemPath, oss.HTTPGet, common.FILE_DOWNLOAD_SIGNURL_TIME)
+	if err != nil {
+		log.Println(fmt.Sprintf("Func: GetSignURL Get Bucket %s Object %s Failed %s", itemBucket, itemPath, err.Error()))
+		return "", err
+	}
+	return signedURL, nil
 }
