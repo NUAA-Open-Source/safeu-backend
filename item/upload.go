@@ -1,6 +1,7 @@
 package item
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/hmac"
 	"crypto/md5"
@@ -15,18 +16,18 @@ import (
 	"hash"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
 
 	"a2os/safeu-backend/common"
+
+	"github.com/gin-gonic/gin"
+	"github.com/satori/go.uuid"
 )
 
-// callbackUrl为 上传回调服务器的URL，请将下面的IP和Port配置为您自己的真实信息。
-var callbackUrl string = "http://120.24.73.105:8080/api/upload/callback"
-
 // 用户上传文件时指定的前缀。
-var upload_dir string = "user-dir-prefix/"
 var expire_time int64 = 30
 
 const (
@@ -66,7 +67,8 @@ func get_policy_token() string {
 	now := time.Now().Unix()
 	expire_end := now + expire_time
 	var tokenExpire = get_gmt_iso8601(expire_end)
-
+	//upload_dir
+	upload_dir := "items/" + time.Now().Format("2006-01-02 15:04:05.00") + "/"
 	//create post policy json
 	var config ConfigStruct
 	config.Expiration = tokenExpire
@@ -79,13 +81,13 @@ func get_policy_token() string {
 	//calucate signature
 	result, err := json.Marshal(config)
 	debyte := base64.StdEncoding.EncodeToString(result)
-	h := hmac.New(func() hash.Hash { return sha1.New() }, []byte(common.CloudConfig.Aliyun[0].AccessKeySecret))
+	h := hmac.New(func() hash.Hash { return sha1.New() }, []byte(common.CloudConfig.AliyunConfig.Accounts[0].AccessKeySecret))
 	io.WriteString(h, debyte)
 	signedStr := base64.StdEncoding.EncodeToString(h.Sum(nil))
 
 	var callbackParam CallbackParam
 
-	callbackParam.CallbackUrl = callbackUrl
+	callbackParam.CallbackUrl = common.CloudConfig.Server[0].ServerCallBack
 	callbackParam.CallbackBody = common.AliyunOSSCallbackBody
 	callbackParam.CallbackBodyType = "application/json"
 	callback_str, err := json.Marshal(callbackParam)
@@ -95,12 +97,13 @@ func get_policy_token() string {
 	callbackBase64 := base64.StdEncoding.EncodeToString(callback_str)
 
 	var policyToken PolicyToken
-	host := fmt.Sprintf("%s.%s", common.CloudConfig.Aliyun[0].EndPoint[0].Bucket[0].Name, common.CloudConfig.Aliyun[0].EndPoint[0].Base)
+	host := fmt.Sprintf("%s.%s", common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Bucket[0].Name, common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Base)
 
-	policyToken.AccessKeyId = common.CloudConfig.Aliyun[0].AccessKey
+	policyToken.AccessKeyId = common.CloudConfig.AliyunConfig.Accounts[0].AccessKey
 	policyToken.Host = host
 	policyToken.Expire = expire_end
 	policyToken.Signature = string(signedStr)
+	//修改上传路径前缀为微秒级时间戳 避免文件名碰撞
 	policyToken.Directory = upload_dir
 	policyToken.Policy = string(debyte)
 	policyToken.Callback = string(callbackBase64)
@@ -411,4 +414,162 @@ func unhex(c byte) byte {
 		return c - 'A' + 10
 	}
 	return 0
+}
+
+type FileInfo struct {
+	Bucket   string `json:"bucket"`
+	Object   string `json:"object"`
+	Etag     string `json:"etag"`
+	Size     int    `json:"size"`
+	MimeType string `json:"mimeType"`
+}
+
+type FinishedFiles struct {
+	Files []uuid.UUID `json:"files"`
+}
+
+func UploadRegister(router *gin.RouterGroup) {
+	router.GET("/policy", GetPolicyToken)    //鉴权
+	router.POST("/callback", UploadCallBack) //回调
+	router.POST("/finish", FinishUpload)     //结束
+}
+
+func GetPolicyToken(c *gin.Context) {
+	response := get_policy_token()
+	c.String(http.StatusOK, response)
+}
+
+func FinishUpload(c *gin.Context) {
+	//TODO：本函数待优化
+	var finishedFiles FinishedFiles
+	db := common.GetDB()
+	err := c.BindJSON(&finishedFiles)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err,
+		})
+		return
+	}
+	if finishedFiles.Files == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Parameter error",
+		})
+		return
+	}
+
+	// 数据库中存在满足uuid且状态为"上传完成"，返回原来生成的提取码
+	var item Item
+	if !db.Where("name = ? AND status = ?", finishedFiles.Files[0], common.UPLOAD_FINISHED).First(&item).RecordNotFound() {
+		reCodeRedisClient := common.GetReCodeRedisClient()
+		owner, _ := reCodeRedisClient.Get(item.ReCode).Result()
+		c.JSON(http.StatusOK, gin.H{
+			"recode": item.ReCode,
+			"owner":  owner,
+		})
+		return
+	}
+	// 存在满足条件uuid且状态为"上传阶段"，生成新的提取码
+	reCode := common.RandStringBytesMaskImprSrc(common.ReCodeLength)
+	var files []string
+	for _, value := range finishedFiles.Files {
+		fmt.Println(value)
+		files = append(files, value.String())
+		db.Model(&Item{}).Where("name = ? AND status = ?", value, common.UPLOAD_BEGIN).Update(map[string]interface{}{"re_code": reCode, "status": common.UPLOAD_FINISHED})
+	}
+
+	owner := common.RandStringBytesMaskImprSrc(common.UserTokenLength)
+	// 将提取码推入Redis
+	reCodeRedisClient := common.GetReCodeRedisClient()
+	redisExpireTime, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
+	reCodeRedisClient.Set(reCode, owner, redisExpireTime)
+	// 将用户识别码推入Redis
+	tokenRedisClient := common.GetUserTokenRedisClient()
+	tokenRedisClient.SAdd(owner, files)
+	c.JSON(http.StatusOK, gin.H{
+		"recode": reCode,
+		"owner":  owner,
+	})
+}
+
+func UploadCallBack(c *gin.Context) {
+	r := c.Request
+	// 双拷贝http Request流 避免读写偏移
+	buf, _ := ioutil.ReadAll(r.Body)
+	rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
+	rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf))
+	bufTemp := new(bytes.Buffer)
+	_, err := bufTemp.ReadFrom(rdr1)
+	if err != nil {
+		log.Println("UploadCallBack bufTemp ReadFrom fail", err)
+	}
+	s := fmt.Sprintf("{%s}", bufTemp.String())
+	var fileInfo FileInfo
+	err = json.Unmarshal([]byte(s), &fileInfo)
+	if err != nil {
+		fmt.Println("Json Unmarshal Fail", err)
+	}
+	bytePublicKey, err := getPublicKey(r)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err,
+		})
+		return
+	}
+
+	byteAuthorization, err := getAuthorization(r)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err,
+		})
+		return
+	}
+
+	r.Body = rdr2
+	byteMD5, err := getMD5FromNewAuthString(r)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err,
+		})
+		return
+	}
+
+	if verifySignature(bytePublicKey, byteMD5, byteAuthorization) {
+		// 鉴权成功后填写DB数据 避免数据丢失
+		item := BuildItemFromCallBack(fileInfo)
+		db := common.GetDB()
+		db.Create(&item)
+		c.JSON(http.StatusOK, gin.H{
+			"uuid": item.Name,
+		})
+		return
+	} else {
+		log.Println("Fail")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err,
+		})
+		return
+	}
+}
+
+func BuildItemFromCallBack(info FileInfo) *Item {
+	var item Item
+	endpoint := common.CloudConfig.AliyunConfig.Accounts[0].EndPoint[0].Base
+	host := fmt.Sprintf("%s://%s.%s/%s", common.DEFAULT_PROTOCOL, info.Bucket, endpoint, info.Object)
+	h, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
+	item.Status = common.UPLOAD_BEGIN
+	item.Name = uuid.Must(uuid.NewV4()).String()
+	// 目前的目录格式为: items/2019-02-23 09:43:27.63/your_file_name，因此第 29 个字符开始才是文件原名
+	item.OriginalName = info.Object[29:] // 截取时间戳后的文件名称
+	item.Host = host
+	item.DownCount = common.FILE_DEFAULT_DOWNCOUNT
+	item.Type = info.MimeType
+	item.IsPublic = true
+	item.ArchiveType = common.ARCHIVE_NULL
+	item.Protocol = common.DEFAULT_PROTOCOL
+	item.Bucket = info.Bucket
+	item.Endpoint = endpoint
+	item.Path = info.Object
+	item.ExpiredAt = time.Now().Add(h) //初始化过期时间为当前时间的8小时后
+	return &item
 }

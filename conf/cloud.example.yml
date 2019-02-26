@@ -19,3 +19,11 @@ aliyun:
     endpoint:
       - endpointid: account2endpoint1
         base: account2endpoint1base
+
+server:
+  - serverid: 0
+    servercallback: "your_server_callback_url_address"
+
+faas:
+  - name: zip
+    endpoint: "your_cloud_zip_function_url_address"

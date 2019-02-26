@@ -1,15 +1,28 @@
-# Ignore database config file
+# Ignore log files
+log/
+
+# Ignore docker database volume
+db-data/
+data/
+
+# Ignore binary file and only file
+safeu-backend
+!safeu-backend/
+
+# Ignore config file
 conf/db.json
+conf/cloud.yml
 
 # Ignore GoLand config files
 .idea/
+
+# Ignore VS Code config files
+.vscode/
 
 # Ignore fresh tmp files
 tmp/
 
 # Ignore vendor package files
-vendor/*
-!vendor/vendor.json
 
 # Binaries for programs and plugins
 *.exe
