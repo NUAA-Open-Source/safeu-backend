@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"time"
 
@@ -33,6 +34,10 @@ func Migrate(db *gorm.DB) {
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&item.Token{})
 }
 func init() {
+
+	// Logger init
+	common.InitLogger()
+
 	//DB init
 	db := common.InitDB()
 	Migrate(db)
@@ -63,6 +68,11 @@ func main() {
 		gin.SetMode(gin.DebugMode)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
+		// Redirect log to file
+		gin.DisableConsoleColor()
+		logFile := common.GetLogFile()
+		defer logFile.Close()
+		gin.DefaultWriter = io.MultiWriter(logFile)
 	}
 
 	r := gin.Default()

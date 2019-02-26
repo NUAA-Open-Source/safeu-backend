@@ -6,6 +6,7 @@ services:
       dockerfile: ././build/package/safeu-backend/Dockerfile-compose
     volumes:
       - ../..:$GOPATH/src/a2os/safeu-backend/
+      - ../../log/web1:/$GOPATH/src/a2os/safeu-backend/log/
     environment:
       - TZ=Asia/Shanghai
     ports:
@@ -23,6 +24,7 @@ services:
       dockerfile: ././build/package/safeu-backend/Dockerfile-compose
     volumes:
       - ../..:$GOPATH/src/a2os/safeu-backend/
+      - ../../log/web2:/$GOPATH/src/a2os/safeu-backend/log/
     environment:
       - TZ=Asia/Shanghai
     ports:
