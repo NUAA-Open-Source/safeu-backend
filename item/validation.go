@@ -17,6 +17,18 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type ResponseItem struct {
+	Name         string    `json:"name"`
+	OriginalName string    `json:"original_name"`
+	DownCount    int       `json:"down_count"`
+	Type         string    `json:"type"`
+	Protocol     string    `json:"protocol"`
+	Bucket       string    `json:"bucket"`
+	Endpoint     string    `json:"endpoint"`
+	Path         string    `json:"path"`
+	ExpiredAt    time.Time `json:"expired_at"`
+}
+
 type ValiPass struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
@@ -77,9 +89,11 @@ func Validation(c *gin.Context) {
 		db.Create(&tokenRecord)
 		log.Println(c.ClientIP(), " Generated token ", token, " for retrieve code ", retrieveCode)
 
+		// 加工 itemList
+		responseItemList := GetResponseItemList(itemList)
 		c.JSON(http.StatusOK, gin.H{
 			"token": token,
-			"items": itemList,
+			"items": responseItemList,
 		})
 		return
 	}
@@ -147,9 +161,11 @@ func Validation(c *gin.Context) {
 	db.Create(&tokenRecord)
 	log.Println(c.ClientIP(), " Generated token ", token, " for retrieve code ", retrieveCode)
 
+	// 加工 itemList
+	responseItemList := GetResponseItemList(itemList)
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
-		"items": itemList,
+		"items": responseItemList,
 	})
 	return
 }
@@ -224,4 +240,24 @@ func CheckDownCountAndExpiredTime(db *gorm.DB, retrieveCode string) ([]Item, err
 	}
 
 	return itemList, nil
+}
+
+func GetResponseItemList(itemList []Item) []ResponseItem {
+	var responseItemList []ResponseItem
+	for _, item := range itemList {
+		responseItem := ResponseItem{
+			Protocol:     item.Protocol,
+			Bucket:       item.Bucket,
+			Endpoint:     item.Endpoint,
+			Path:         item.Path,
+			OriginalName: item.OriginalName,
+			Name:         item.Name,
+			DownCount:    item.DownCount,
+			Type:         item.Type,
+			ExpiredAt:    item.ExpiredAt,
+		}
+		responseItemList = append(responseItemList, responseItem)
+	}
+
+	return responseItemList
 }

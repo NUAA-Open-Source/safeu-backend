@@ -116,6 +116,7 @@ func DownloadItems(c *gin.Context) {
 			err := DeleteItem(singleItem.Bucket, singleItem.Path)
 			if err != nil {
 				log.Println("Cannot delete item in bucket ", singleItem.Bucket, ", path ", singleItem.Path)
+				// TODO: 返回 500
 			}
 
 			// 删除数据库记录
@@ -136,6 +137,7 @@ func DownloadItems(c *gin.Context) {
 			err := DeleteItem(singleItem.Bucket, singleItem.Path)
 			if err != nil {
 				log.Println("Cannot delete item in bucket ", singleItem.Bucket, ", path ", singleItem.Path)
+				// TODO: 返回 500
 			}
 
 			// 删除数据库记录
@@ -149,7 +151,13 @@ func DownloadItems(c *gin.Context) {
 		}
 
 		// 剩余时间与下载次数合法，获取文件
-		url := singleItem.Host
+		// 获取临时下载链接
+		url, err := GetSignURL(singleItem.Bucket, singleItem.Path, common.GetAliyunOSSClient())
+		if err != nil {
+			log.Println("Cannot get the signed downloadable link for item \"", singleItem.Bucket, singleItem.Path, "\"")
+			// TODO: 返回 500
+		}
+		log.Println(c.ClientIP(), " Get the zip file signed url: ", url)
 		c.JSON(http.StatusOK, gin.H{
 			"url": url,
 		})
@@ -164,6 +172,24 @@ func DownloadItems(c *gin.Context) {
 		log.Println(c.ClientIP(), " Cannot get the ItemGroup")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Cannot get the items.",
+		})
+		return
+	}
+
+	// 若为文件组中的单文件下载请求，直接返回签名链接
+	if len(packRequest.ZipItems) == 1 {
+		singleItem := packRequest.ZipItems[0]
+		url, err := GetSignURL(singleItem.Bucket, singleItem.Path, common.GetAliyunOSSClient())
+		if err != nil {
+			log.Println("Cannot get the signed downloadable link for item \"", singleItem.Bucket, singleItem.Path, "\"")
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Cannot get the download link.",
+			})
+			return
+		}
+		log.Println(c.ClientIP(), " Get the zip file signed url: ", url)
+		c.JSON(http.StatusOK, gin.H{
+			"url": url,
 		})
 		return
 	}
@@ -207,22 +233,32 @@ func DownloadItems(c *gin.Context) {
 			db.Create(&zipPack)
 			log.Println("Generated the full files zip package for retrieve code \"", retrieveCode, "\"")
 
-			downloadLink := resJson["host"]
-
 			// 返回压缩包下载链接
+			// 对压缩包签名
+			url, err := GetSignURL(zipPack.Bucket, zipPack.Path, common.GetAliyunOSSClient())
+			if err != nil {
+				log.Println("Cannot get the signed downloadable link for item \"", zipPack.Bucket, zipPack.Path, "\"")
+				// TODO: 返回 500
+			}
+			log.Println(c.ClientIP(), " Get the zip file signed url: ", url)
 			c.JSON(http.StatusOK, gin.H{
-				"url": downloadLink,
+				"url": url,
 			})
-			log.Println(c.ClientIP(), " Get the zip file url: ", downloadLink)
 			return
 
 		}
 
 		// 有全量打包，则直接发送打包文件
+		// 对压缩包签名
+		url, err := GetSignURL(zipPack.Bucket, zipPack.Path, common.GetAliyunOSSClient())
+		if err != nil {
+			log.Println("Cannot get the signed downloadable link for item \"", zipPack.Bucket, zipPack.Path, "\"")
+			// TODO: 返回 500
+		}
 		c.JSON(http.StatusOK, gin.H{
-			"url": zipPack.Host,
+			"url": url,
 		})
-		log.Println(c.ClientIP(), " Full zip pack has generated before, get the zip file url: ", zipPack.Host)
+		log.Println(c.ClientIP(), " Full zip pack has generated before, get the zip file signed url: ", url)
 		return
 	}
 
@@ -257,12 +293,16 @@ func DownloadItems(c *gin.Context) {
 	db.Create(&zipPack)
 	log.Println("Generated the custom files zip package for retrieve code \"", retrieveCode, "\"")
 
-	downloadLink := resJson["host"]
-	log.Println(c.ClientIP(), " Get the zip file url: ", downloadLink)
-
 	// 返回压缩包路径
+	// 对自定义压缩包签名
+	url, err := GetSignURL(zipPack.Bucket, zipPack.Path, common.GetAliyunOSSClient())
+	if err != nil {
+		log.Println("Cannot get the signed downloadable link for item \"", zipPack.Bucket, zipPack.Path, "\"")
+		// TODO: 返回 500
+	}
+	log.Println(c.ClientIP(), " Get the zip file signed url: ", url)
 	c.JSON(http.StatusOK, gin.H{
-		"url": downloadLink,
+		"url": url,
 	})
 
 	return
@@ -311,6 +351,7 @@ func GetZipEndpoint() (string, error) {
 // 获取签名URL
 func GetSignURL(itemBucket string, itemPath string, client *oss.Client) (string, error) {
 
+	// TODO: 阿里云重试机制
 	bucket, err := client.Bucket(itemBucket)
 	if err != nil {
 		log.Println(fmt.Sprintf("Func: GetSignURL Get Client %v Bucket %s Failed %s", client, itemBucket, err.Error()))
