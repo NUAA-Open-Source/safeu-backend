@@ -22,6 +22,7 @@ import (
 
 	"a2os/safeu-backend/common"
 	"a2os/safeu-backend/item"
+	"a2os/safeu-backend/event"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,8 @@ func Migrate(db *gorm.DB) {
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&item.Item{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&common.Config{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&item.Token{})
+
+	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&event.Event{})
 }
 func init() {
 
@@ -115,6 +118,7 @@ func main() {
 		v1.POST("/expireTime/:retrieveCode", item.ChangeExpireTime)
 		v1.POST("/item/:retrieveCode", item.DownloadItems)
 		v1.POST("/validation/:retrieveCode", item.Validation)
+		v1.GET("/event", event.ReportEvent)
 	}
 
 	r.Run(":" + common.PORT) // listen and serve on 0.0.0.0:PORT
