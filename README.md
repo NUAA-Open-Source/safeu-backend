@@ -13,6 +13,7 @@
       - [MariaDB](#mariadb)
       - [Redis](#redis)
     - [Cloud Services Config](#cloud-services-config)
+  - [Error Codes](#error-codes)
   - [Release Mode](#release-mode)
   - [Deploy (Development Environment)](#deploy-development-environment)
     - [Build from Source](#build-from-source)
@@ -80,6 +81,14 @@ CREATE DATABASE safeu;
 云有关配置。
 
 在 `conf/` 下新建并填写 `cloud.yml` 文件，具体请参照 `conf/cloud.exmaple.yml` 。
+
+## Error Codes
+
+返回错误码。
+
+错误码对照文档：[common/error.go](common/error.go)
+
+> “代码即文档”
 
 ## Release Mode
 
