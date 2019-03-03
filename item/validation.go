@@ -54,7 +54,8 @@ func Validation(c *gin.Context) {
 	var curItem Item
 	if db.Where("re_code = ? AND (status = ? OR status = ?) AND archive_type = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, common.ARCHIVE_NULL).First(&curItem).RecordNotFound() {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Cannot find resource via this retrieve code.",
+			"err_code": 7,
+			"message":  common.Errors[7],
 		})
 		log.Println(c.ClientIP(), " Cannot find resource via the retrieve code ", retrieveCode)
 		return
@@ -68,7 +69,8 @@ func Validation(c *gin.Context) {
 		if err != nil {
 			log.Println(c.ClientIP(), " check down count and expired time failed")
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "There is a problem for this resource, please contact the maintainer.",
+				"err_code": 8,
+				"message":  common.Errors[8],
 			})
 			return
 		}
@@ -76,7 +78,8 @@ func Validation(c *gin.Context) {
 		// 文件过期/无下载次数被清空，返回 404
 		if len(itemList) == 0 {
 			c.JSON(http.StatusNotFound, gin.H{
-				"error": "Cannot find resource via this retrieve code.",
+				"err_code": 7,
+				"message":  common.Errors[7],
 			})
 			log.Println(c.ClientIP(), " Cannot find resource via the retrieve code ", retrieveCode)
 			return
@@ -104,7 +107,8 @@ func Validation(c *gin.Context) {
 	var valiPass ValiPass
 	if err := c.ShouldBindJSON(&valiPass); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Cannot get the password",
+			"err_code": 9,
+			"message":  common.Errors[9],
 		})
 		log.Println(c.ClientIP(), " Cannot get the password from client, return 401 Unauthorized")
 		return
@@ -123,7 +127,8 @@ func Validation(c *gin.Context) {
 	// 密码不正确/密码缺失返回 401
 	if hasherSum != refPassword {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "The password is not correct",
+			"err_code": 10,
+			"message":  common.Errors[10],
 		})
 		log.Println(c.ClientIP(), " The password is not correct, return 401 Unauthorized")
 		return
@@ -134,7 +139,8 @@ func Validation(c *gin.Context) {
 	if err != nil {
 		log.Println(c.ClientIP(), " check down count and expired time failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "There is a problem for this resource, please contact the maintainer.",
+			"err_code": 8,
+			"message":  common.Errors[8],
 		})
 		return
 	}
@@ -142,7 +148,8 @@ func Validation(c *gin.Context) {
 	// 文件过期/无下载次数被清空，返回 404
 	if len(itemList) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Cannot find resource via this retrieve code.",
+			"err_code": 7,
+			"message":  common.Errors[7],
 		})
 		log.Println(c.ClientIP(), " Cannot find resource via the retrieve code ", retrieveCode)
 		return

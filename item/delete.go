@@ -12,18 +12,19 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
-type DelateItemBody struct {
+type DeleteItemBody struct {
 	UserToken string `json:"user_token"`
 }
 
 func DeleteManual(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
-	var deleteItemBody DelateItemBody
+	var deleteItemBody DeleteItemBody
 	err := c.BindJSON(&deleteItemBody)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err,
+			"err_code": 0,
+			"message":  err,
 		})
 		return
 	}
@@ -31,7 +32,8 @@ func DeleteManual(c *gin.Context) {
 	reCodeRedisClient := common.GetReCodeRedisClient()
 	if deleteItemBody.UserToken != reCodeRedisClient.Get(retrieveCode).Val() {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "this reCode mismatch auth",
+			"err_code": 6,
+			"message":  common.Errors[6],
 		})
 		return
 	}
