@@ -41,7 +41,8 @@ func DownloadItems(c *gin.Context) {
 	clientToken := c.Request.Header.Get("Token")
 	if len(clientToken) == 0 { // if not get the token
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Cannot get the token",
+			"err_code": 11,
+			"message":  common.Errors[11],
 		})
 		log.Println(c.ClientIP(), " Cannot get the client token from header")
 		return
@@ -53,7 +54,8 @@ func DownloadItems(c *gin.Context) {
 	if db.Where("token = ?", clientToken).First(&tokenRecord).RecordNotFound() {
 		// 无法找到该 token
 		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Token invalid",
+			"err_code": 12,
+			"message":  common.Errors[12],
 		})
 		log.Println(c.ClientIP(), " Invalid token ", clientToken)
 		return
@@ -62,7 +64,8 @@ func DownloadItems(c *gin.Context) {
 	// 检查 token 是否失效
 	if !tokenRecord.Valid {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Token invalid",
+			"err_code": 12,
+			"message":  common.Errors[12],
 		})
 		log.Println(c.ClientIP(), " Expired token ", clientToken)
 		return
@@ -74,7 +77,8 @@ func DownloadItems(c *gin.Context) {
 		// Token 已过期，更新数据库并拒绝请求
 		db.Model(&tokenRecord).Update("valid", false)
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Token invalid",
+			"err_code": 12,
+			"message":  common.Errors[12],
 		})
 		log.Println(c.ClientIP(), " Expired token ", clientToken)
 		return
@@ -85,7 +89,8 @@ func DownloadItems(c *gin.Context) {
 	if tokenRetrieveCode != retrieveCode {
 		// 提取码不正确
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Invalid token for this item",
+			"err_code": 12,
+			"message":  common.Errors[12],
 		})
 		log.Println(c.ClientIP(), " Invalid token ", clientToken, " for resource ", retrieveCode)
 		return
@@ -99,7 +104,8 @@ func DownloadItems(c *gin.Context) {
 
 	if len(itemList) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Cannot find the resource by retrieve code " + retrieveCode,
+			"err_code": 7,
+			"message":  common.Errors[7],
 		})
 		log.Println(c.ClientIP(), " resource ", retrieveCode, " not found")
 		return
@@ -124,7 +130,8 @@ func DownloadItems(c *gin.Context) {
 			common.DeleteRedisRecodeFromRecode(singleItem.ReCode)
 			// 返回 410 Gone
 			c.JSON(http.StatusGone, gin.H{
-				"error": "Over the expired time.",
+				"err_code": 13,
+				"message":  common.Errors[13],
 			})
 			log.Println(c.ClientIP(), " The retrieve code \"", retrieveCode, "\" resouce cannot be download due to the file duaration expired")
 			return
@@ -144,7 +151,8 @@ func DownloadItems(c *gin.Context) {
 			db.Delete(&singleItem)
 			common.DeleteRedisRecodeFromRecode(singleItem.ReCode)
 			c.JSON(http.StatusGone, gin.H{
-				"error": "Out of downloadable count.",
+				"err_code": 14,
+				"message":  common.Errors[14],
 			})
 			log.Println(c.ClientIP(), " The retrieve code \"", retrieveCode, "\" resouce cannot be download due to downloadable counter = 0")
 			return
@@ -171,7 +179,8 @@ func DownloadItems(c *gin.Context) {
 		// 缺少 ItemGroup
 		log.Println(c.ClientIP(), " Cannot get the ItemGroup")
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Cannot get the items.",
+			"err_code": 15,
+			"message":  common.Errors[15],
 		})
 		return
 	}
@@ -183,7 +192,8 @@ func DownloadItems(c *gin.Context) {
 		if err != nil {
 			log.Println("Cannot get the signed downloadable link for item \"", singleItem.Bucket, singleItem.Path, "\"")
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Cannot get the download link.",
+				"err_code": 16,
+				"message":  common.Errors[16],
 			})
 			return
 		}
@@ -199,7 +209,8 @@ func DownloadItems(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{
-			"error": "Service Unavailable, please contact the maintainer.",
+			"err_code": 17,
+			"message":  common.Errors[17],
 		})
 		log.Println("[ERROR] Cannot get the proper FaaS zip config from cloud config")
 		return

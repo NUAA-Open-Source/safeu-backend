@@ -12,4 +12,11 @@ var Errors = map[int]string{
 	8:  "There is a problem for this resource, please contact the maintainer.",
 	9:  "Cannot get the password.",
 	10: "The password is not correct.",
+	11: "Cannot get the token.",
+	12: "Token invalid.",
+	13: "Over the expired time.",
+	14: "Out of downloadable count.",
+	15: "Cannot get the items field.",
+	16: "Cannot get the download link.",
+	17: "Service Unavailable, please contact the maintainer.",
 }
