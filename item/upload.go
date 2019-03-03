@@ -447,13 +447,15 @@ func FinishUpload(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err,
+			"err_code": 0,
+			"message":  err,
 		})
 		return
 	}
 	if finishedFiles.Files == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Parameter error",
+			"err_code": 1,
+			"message":  common.Errors[0],
 		})
 		return
 	}
@@ -512,7 +514,8 @@ func UploadCallBack(c *gin.Context) {
 	bytePublicKey, err := getPublicKey(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err,
+			"err_code": 0,
+			"message":  err,
 		})
 		return
 	}
@@ -520,7 +523,8 @@ func UploadCallBack(c *gin.Context) {
 	byteAuthorization, err := getAuthorization(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err,
+			"err_code": 0,
+			"message":  err,
 		})
 		return
 	}
@@ -529,7 +533,8 @@ func UploadCallBack(c *gin.Context) {
 	byteMD5, err := getMD5FromNewAuthString(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err,
+			"err_code": 0,
+			"message":  err,
 		})
 		return
 	}
@@ -546,7 +551,8 @@ func UploadCallBack(c *gin.Context) {
 	} else {
 		log.Println("Fail")
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err,
+			"err_code": 0,
+			"message":  err,
 		})
 		return
 	}
