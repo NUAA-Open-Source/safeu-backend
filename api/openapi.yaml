@@ -22,7 +22,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: "1.0.0-alpha"
+  version: "1.0.0-beta"
 externalDocs:
   description: Find out more about A2OS SafeU backend
   url: https://api.safeu.a2os.club
@@ -166,17 +166,27 @@ paths:
               schema:
                 type: object
                 properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
                   message:
                     type: string
-                    example: Can`t Find User Token
-                    description: 文件所有者信息不存在
+                    description: 错误原因
         "500":
           description: 服务器错误
           content:
-            "text/plain":
+            "application/json":
               schema:
-                type: string
-                description: 未知错误
+                type: object
+                properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
+                    type: string
+                    description: 错误原因
 
   /v1/recode/{retrieveCode}:
     post:
@@ -225,10 +235,13 @@ paths:
               schema:
                 type: object
                 properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
                   message:
                     type: string
-                    example: reCode Repeat/require Auth
-                    description: 提取码重复/需要新的哈希密码
+                    description: 错误原因
         "401":
           description: 文件所有者信息不存在
           content:
@@ -236,17 +249,27 @@ paths:
               schema:
                 type: object
                 properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
                   message:
                     type: string
-                    example: Can`t Find User Token
-                    description: 文件所有者信息不存在
+                    description: 错误原因
         "500":
           description: 服务器错误
           content:
-            "text/plain":
+            "application/json":
               schema:
-                type: string
-                description: 未知错误
+                type: object
+                properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
+                    type: string
+                    description: 错误原因
 
   /v1/expireTime/{retrieveCode}:
     post:
@@ -293,11 +316,13 @@ paths:
               schema:
                 type: object
                 properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
                   message:
                     type: string
-                    example: The length of the time is not within the right range
-                    description: 新的文件过期时间不正确
-
+                    description: 错误原因
         "401":
           description: 文件所有者信息不存在
           content:
@@ -305,17 +330,27 @@ paths:
               schema:
                 type: object
                 properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
                   message:
                     type: string
-                    example: Can`t Find User Token
-                    description: 文件所有者信息不存在
+                    description: 错误原因
         "500":
           description: 服务器错误
           content:
-            "text/plain":
+            "application/json":
               schema:
-                type: string
-                description: 未知错误
+                type: object
+                properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
+                    type: string
+                    description: 错误原因
 
   /v1/delete/{retrieveCode}:
     post:
@@ -358,17 +393,27 @@ paths:
               schema:
                 type: object
                 properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
                   message:
                     type: string
-                    example: Can`t Find User Token
-                    description: 文件所有者信息不存在
+                    description: 错误原因
         "500":
           description: 服务器错误
           content:
-            "text/plain":
+            "application/json":
               schema:
-                type: string
-                description: 未知错误
+                type: object
+                properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
+                    type: string
+                    description: 错误原因
 
   /v1/downCount/{retrieveCode}:
     post:
@@ -414,17 +459,27 @@ paths:
               schema:
                 type: object
                 properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
                   message:
                     type: string
-                    example: Can`t Find User Token
-                    description: 文件所有者信息不存在
+                    description: 错误原因
         "500":
           description: 服务器错误
           content:
-            "text/plain":
+            "application/json":
               schema:
-                type: string
-                description: 未知错误
+                type: object
+                properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
+                    type: string
+                    description: 错误原因
     get:
       tags:
         - download
@@ -464,7 +519,11 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
                     type: string
                     description: 错误原因
         "500":
@@ -518,7 +577,11 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
                     type: string
                     description: 错误原因
         "401":
@@ -528,7 +591,11 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
                     type: string
                     description: 错误原因
         "404":
@@ -538,7 +605,11 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
                     type: string
                     description: 错误原因
         "410":
@@ -548,7 +619,25 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
+                    type: string
+                    description: 错误原因
+        "500":
+          description: 无法获取签名下载链接
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
                     type: string
                     description: 错误原因
         "503":
@@ -558,7 +647,11 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
                     type: string
                     description: 错误原因
 
@@ -596,7 +689,7 @@ paths:
                     type: string
                     description: 临时认证口令
                   items:
-                    $ref: "#/components/schemas/ItemGroup"
+                    $ref: "#/components/schemas/ResponseItemGroup"
         "401":
           description: 需要密码 / 密码认证失败
           content:
@@ -604,7 +697,11 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
                     type: string
                     description: 错误原因
         "404":
@@ -614,7 +711,11 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
                     type: string
                     description: 错误原因
         "500":
@@ -624,38 +725,26 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
                     type: string
                     description: 错误原因
 
 components:
   schemas:
-    Item:
+    ResponseItem:
       type: object
       description: 文件
       properties:
-        id:
-          type: integer
-          format: int64
-        status:
-          type: integer
-          format: int32
-          description: 文件状态（正常，异常，已删除）
         name:
           type: string
           description: 存储单位 UUID 值
         original_name:
           type: string
           description: 文件原名
-        host:
-          type: string
-          description: 存储后端的 bucket 记录
-        re_code:
-          type: string
-          description: 提取码
-        password:
-          type: string
-          description: 私有文件[组]的密码
         down_count:
           type: integer
           format: int32
@@ -663,13 +752,6 @@ components:
         type:
           type: string
           description: 文件类型
-        is_public:
-          type: boolean
-          description: 是否公有
-        archive_type:
-          type: integer
-          format: int32
-          description: 压缩包类型（NULL，FULL，CUSTOM）
         protocol:
           type: string
           description: OSS 下载协议
@@ -682,22 +764,14 @@ components:
         path:
           type: string
           description: 文件所在 OSS 桶中的绝对路径
-        created_at:
+        expired_at:
           type: string
           format: date-time
-          description: 最初生成时间
-        updated_at:
-          type: string
-          format: date-time
-          description: 最后更新时间
-        deleted_at:
-          type: string
-          format: date-time
-          description: 记录删除时间
-    ItemGroup:
+          description: 文件到期时间
+    ResponseItemGroup:
       type: array
       items:
-        $ref: "#/components/schemas/Item"
+        $ref: "#/components/schemas/ResponseItem"
       description: 文件组
     ZipItem:
       type: object
