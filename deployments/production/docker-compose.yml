@@ -17,7 +17,7 @@ services:
     depends_on:
       - db
       - redis
-    restart: always
+    restart: on-failure
   web2:
     build:
       context: ../..
@@ -35,7 +35,7 @@ services:
     depends_on:
       - db
       - redis
-    restart: always
+    restart: on-failure
   db:
     environment:
       - TZ=Asia/Shanghai
@@ -43,7 +43,8 @@ services:
       - MYSQL_DATABASE=safeu
     image: mariadb:10.3
     volumes:
-      - ../../data/maraidb:/var/lib/mysql
+      - ../../data/mariadb:/var/lib/mysql
+      - ../../conf/db-conf:/etc/mysql/conf.d
     ports:
       - "3306:3306"
     networks:
