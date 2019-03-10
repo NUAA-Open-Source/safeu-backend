@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
@@ -61,10 +62,19 @@ func InitDB() *gorm.DB {
 		fmt.Println("Get DBConfig From File Err:", err)
 	}
 	DbConfig = DBConf
-	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&collation=utf8mb4_bin&parseTime=True&loc=%s", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Host, DBConf.Master.Port, DBConf.Master.Database, MYSQLTIMEZONE))
-	if err != nil {
-		//fmt.Println("Gorm Open DB Err: ", err)
-		log.Fatalln("Gorm Open DB Err: ", err)
+	var (
+		db *gorm.DB
+		e  error
+	)
+	for {
+		// 重试连接
+		db, e = gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&collation=utf8mb4_bin&parseTime=True&loc=%s", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Host, DBConf.Master.Port, DBConf.Master.Database, MYSQLTIMEZONE))
+		if e != nil {
+			fmt.Println("Gorm Open DB Err: ", err)
+			time.Sleep(20 * time.Second)
+		} else {
+			break
+		}
 	}
 	log.Println("Connected to database ", DBConf.Master.User, " ", DBConf.Master.Pass, " ", DBConf.Master.Host, ":", DBConf.Master.Port, " ", DBConf.Master.Database)
 	db.DB().SetMaxIdleConns(DBConf.Master.MaxIdleConns)
