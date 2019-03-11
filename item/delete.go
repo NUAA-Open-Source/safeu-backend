@@ -10,12 +10,34 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/go-redis/redis"
 )
 
 type DeleteItemBody struct {
 	UserToken string `json:"user_token"`
 }
 
+// 过期文件主动删除
+func ActiveDelete(client *redis.Client) {
+	log.Println("ActiveDelete is Running........")
+	pubsub := client.Subscribe(fmt.Sprintf("__keyevent@%d__:expired", common.RECODE))
+	_, err := pubsub.Receive()
+	if err != nil {
+		panic(err)
+	}
+	db := common.GetDB()
+	ch := pubsub.Channel()
+	for msg := range ch {
+		reCode := msg.Payload[len(common.SHADOWKEYPREFIX):]
+		var itemList []Item
+		db.Where("re_code = ? ", reCode).Find(&itemList)
+		for _, item := range itemList {
+			db.Delete(item)
+		}
+		go DeleteItems(itemList)
+		common.DeleteRedisRecodeFromRecode(reCode)
+	}
+}
 func DeleteManual(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
 	var deleteItemBody DeleteItemBody

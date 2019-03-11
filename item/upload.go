@@ -484,7 +484,15 @@ func FinishUpload(c *gin.Context) {
 	// 将提取码推入Redis
 	reCodeRedisClient := common.GetReCodeRedisClient()
 	redisExpireTime, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
-	reCodeRedisClient.Set(reCode, owner, redisExpireTime)
+	//reCodeRedisClient.Set(reCode, owner, redisExpireTime)
+	err = common.SetShadowKeyInRedis(reCode, owner, redisExpireTime, reCodeRedisClient)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"err_code": 0,
+			"message":  err,
+		})
+		return
+	}
 	// 将用户识别码推入Redis
 	tokenRedisClient := common.GetUserTokenRedisClient()
 	tokenRedisClient.SAdd(owner, files)
