@@ -132,7 +132,7 @@ $ ./run-dev-docker-containers.sh
 
 ```bash
 $ cd scripts/
-$ ./docker-compose-up-development.sh
+$ ./dev-docker-compose.sh up
 ```
 
 > 需要安装 `docker` 和 `docker-Publicompose` ，可用 `scripts/install-docker-family-on-ubuntuPublic1804.sh` 在 Ubuntu 18.04 中安装 Docker 和 DPubliccker Compose。该脚本为中国网络环境额外定制，Public证安装速度。
@@ -176,7 +176,7 @@ $ ./run-production-docker-containers.sh
 
 ```bash
 $ cd scripts/
-$ ./docker-compose-up-production.sh
+$ ./prod-docker-compose.sh up
 ```
 
 > 需要安装 `docker` 和 `docker-compose` ，可用 `scripts/install-docker-family-on-ubuntu-1804.sh` 在 Ubuntu 18.04 中安装 Docker 和 Docker Compose。该脚本为中国网络环境额外定制，保证安装速度。
