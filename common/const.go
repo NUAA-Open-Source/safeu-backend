@@ -15,6 +15,7 @@ const (
 	ReCodeLength          = 4
 	UserTokenLength       = 32
 	MYSQLTIMEZONE         = "Asia%2FShanghai"
+	SHADOWKEYPREFIX       = "shadowKey:"
 )
 
 // 文件状态码

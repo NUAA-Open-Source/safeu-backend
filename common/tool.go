@@ -56,3 +56,17 @@ func KeyISExistInRedis(str string, client *redis.Client) bool {
 	}
 	return true
 }
+
+func SetShadowKeyInRedis(key string, value interface{}, expiration time.Duration, client *redis.Client) error {
+	err := client.Set(key, value, 0).Err()
+	if err != nil {
+		log.Println(fmt.Sprintf("WriteShadowKeyInRedis key %s value %v fail in realKey Set", key, value))
+		return err
+	}
+	err = client.Set(SHADOWKEYPREFIX+key, "", expiration).Err()
+	if err != nil {
+		log.Println(fmt.Sprintf("WriteShadowKeyInRedis key %s value %v fail in shadowKey Set", key, value))
+		return err
+	}
+	return nil
+}

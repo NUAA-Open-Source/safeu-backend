@@ -33,6 +33,12 @@ func Migrate(db *gorm.DB) {
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&common.Config{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&item.Token{})
 }
+
+// 系统启动后的任务
+func Tasks()  {
+	// 主动删除
+	go item.ActiveDelete(common.GetReCodeRedisClient())
+}
 func init() {
 
 	// Logger init
@@ -58,6 +64,8 @@ func init() {
 
 	// 初始化阿里云对象存储客户端对象
 	common.InitAliyunOSSClient()
+	// 系统启动后的任务
+	Tasks()
 
 }
 
