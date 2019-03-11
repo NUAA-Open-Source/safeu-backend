@@ -86,9 +86,7 @@ CREATE DATABASE safeu;
 
 返回错误码。
 
-错误码对照文档：[common/error.go](common/error.go)
-
-> “代码即文档”
+错误码对照文档：[ERRORS](ERRORS.md)
 
 ## Release Mode
 
