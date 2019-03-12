@@ -44,11 +44,11 @@ then
   ./dev-docker-compose.sh -h|--help
 
  Commands:
-   build      Build SafeU dev container images.
-   down       Down SafeU dev containers.
-   help       Show this help message.
-   logs       View output from dev containers.
-   up         Up SafeU dev containers.
+   build      Build SafeU dev container images
+   down       Down SafeU dev containers
+   help       Show this help message
+   logs       View output from dev containers
+   up         Up SafeU dev containers
 "
 
 else
