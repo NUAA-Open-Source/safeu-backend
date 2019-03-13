@@ -26,6 +26,9 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/gin-contrib/sessions"
+	"github.com/utrack/gin-csrf"
+	"github.com/gin-contrib/sessions/cookie"
 )
 
 func Migrate(db *gorm.DB) {
@@ -86,6 +89,7 @@ func main() {
 	r := gin.Default()
 
 	// After init router
+	// CORS
 	if common.DEBUG {
 		r.Use(cors.New(cors.Config{
 			AllowAllOrigins:  true,
@@ -105,6 +109,17 @@ func main() {
 			MaxAge:           12 * time.Hour,
 		}))
 	}
+
+	// CSRF
+	store := cookie.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions("mysession", store))
+	r.Use(csrf.Middleware(csrf.Options{
+		Secret: "secret123",
+		ErrorFunc: func(c *gin.Context){
+			c.String(400, "CSRF token mismatch")
+			c.Abort()
+		},
+	}))
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
