@@ -12,6 +12,7 @@
 | 10004 | Parameter value invalid | 参数非法 |
 | 10005 | Missing required parameter | 缺少参数 |
 | 10006 | Resource unavailable | 资源不存在 |
+| 10007 | CSRF token mismatch | CSRF 认证失败 |
 
 ## Application Errors
 
