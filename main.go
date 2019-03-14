@@ -18,17 +18,18 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"time"
 
 	"a2os/safeu-backend/common"
 	"a2os/safeu-backend/item"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/gin-contrib/sessions"
 	"github.com/utrack/gin-csrf"
-	"github.com/gin-contrib/sessions/cookie"
 )
 
 func Migrate(db *gorm.DB) {
@@ -38,7 +39,7 @@ func Migrate(db *gorm.DB) {
 }
 
 // 系统启动后的任务
-func Tasks()  {
+func Tasks() {
 	// 主动删除
 	go item.ActiveDelete(common.GetReCodeRedisClient())
 }
@@ -111,20 +112,31 @@ func main() {
 	}
 
 	// CSRF
-	store := cookie.NewStore([]byte("secret"))
-	r.Use(sessions.Sessions("mysession", store))
+	store := cookie.NewStore([]byte("csrf-secret"))
+	r.Use(sessions.Sessions("safeu-session", store))
 	r.Use(csrf.Middleware(csrf.Options{
-		Secret: "secret123",
-		ErrorFunc: func(c *gin.Context){
-			c.String(400, "CSRF token mismatch")
+		Secret: "safeu-secret",
+		ErrorFunc: func(c *gin.Context) {
+			//c.String(http.StatusBadRequest, "CSRF token mismatch")
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err_code": 10007,
+				"message":  common.Errors[10007],
+			})
+			log.Println(c.ClientIP(), "CSRF token mismatch")
 			c.Abort()
 		},
 	}))
 
 	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
+	})
+
+	r.GET("/csrf", func(c *gin.Context) {
+		c.Header("X-CSRF-TOKEN", csrf.GetToken(c))
+		c.String(http.StatusOK, csrf.GetToken(c))
+		log.Println(c.ClientIP(), "response CSRF token", csrf.GetToken(c))
 	})
 
 	v1 := r.Group("/v1")

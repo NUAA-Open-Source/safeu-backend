@@ -49,7 +49,11 @@
 
 ### Delete Errors
 
+204xx 为删除相关错误。
+
 ### Validate Errors
+
+205xx 为认证相关错误。
 
 | Error Code | Error Message (en) | Error Message (zh) |
 | :----: | :----: | :----: |

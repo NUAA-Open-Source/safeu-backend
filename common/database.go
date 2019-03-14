@@ -71,6 +71,7 @@ func InitDB() *gorm.DB {
 		db, e = gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&collation=utf8mb4_bin&parseTime=True&loc=%s", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Host, DBConf.Master.Port, DBConf.Master.Database, MYSQLTIMEZONE))
 		if e != nil {
 			fmt.Println("Gorm Open DB Err: ", err)
+			log.Println("GORM cannot connect to database, retry in 20 seconds...")
 			time.Sleep(20 * time.Second)
 		} else {
 			break
