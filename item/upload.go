@@ -446,16 +446,16 @@ func FinishUpload(c *gin.Context) {
 	err := c.BindJSON(&finishedFiles)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 1,
+			"message":  common.Errors[1],
 		})
 		return
 	}
 	if finishedFiles.Files == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"err_code": 1,
-			"message":  common.Errors[0],
+			"message":  common.Errors[1],
 		})
 		return
 	}
@@ -475,7 +475,6 @@ func FinishUpload(c *gin.Context) {
 	reCode := common.RandStringBytesMaskImprSrc(common.ReCodeLength)
 	var files []string
 	for _, value := range finishedFiles.Files {
-		fmt.Println(value)
 		files = append(files, value.String())
 		db.Model(&Item{}).Where("name = ? AND status = ?", value, common.UPLOAD_BEGIN).Update(map[string]interface{}{"re_code": reCode, "status": common.UPLOAD_FINISHED})
 	}
@@ -488,8 +487,8 @@ func FinishUpload(c *gin.Context) {
 	err = common.SetShadowKeyInRedis(reCode, owner, redisExpireTime, reCodeRedisClient)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+			"err_code": 8,
+			"message":  common.Errors[8],
 		})
 		return
 	}
@@ -522,8 +521,8 @@ func UploadCallBack(c *gin.Context) {
 	bytePublicKey, err := getPublicKey(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 0,
-			"message":  err,
+			"err_code": 18,
+			"message":  common.Errors[18],
 		})
 		return
 	}
@@ -531,8 +530,8 @@ func UploadCallBack(c *gin.Context) {
 	byteAuthorization, err := getAuthorization(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 0,
-			"message":  err,
+			"err_code": 18,
+			"message":  common.Errors[18],
 		})
 		return
 	}
@@ -541,8 +540,8 @@ func UploadCallBack(c *gin.Context) {
 	byteMD5, err := getMD5FromNewAuthString(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 0,
-			"message":  err,
+			"err_code": 18,
+			"message":  common.Errors[18],
 		})
 		return
 	}
@@ -559,8 +558,8 @@ func UploadCallBack(c *gin.Context) {
 	} else {
 		log.Println("Fail")
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 0,
-			"message":  err,
+			"err_code": 18,
+			"message":  common.Errors[18],
 		})
 		return
 	}

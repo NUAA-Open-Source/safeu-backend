@@ -44,9 +44,9 @@ func DeleteManual(c *gin.Context) {
 	err := c.BindJSON(&deleteItemBody)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 1,
+			"message":  common.Errors[1],
 		})
 		return
 	}

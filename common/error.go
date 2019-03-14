@@ -19,4 +19,5 @@ var Errors = map[int]string{
 	15: "Cannot get the items field.",
 	16: "Cannot get the download link.",
 	17: "Service Unavailable, please contact the maintainer.",
+	18: "Illegal callback request in Upload",
 }

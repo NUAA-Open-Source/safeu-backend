@@ -42,9 +42,9 @@ func ChangeExpireTime(c *gin.Context) {
 	err := c.BindJSON(&changeExpireTimeBody)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 1,
+			"message":  common.Errors[1],
 		})
 		return
 	}
@@ -87,9 +87,9 @@ func ChangePassword(c *gin.Context) {
 	err := c.BindJSON(&changePassBody)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 1,
+			"message":  common.Errors[1],
 		})
 		return
 	}
@@ -138,9 +138,9 @@ func ChangeRecode(c *gin.Context) {
 	err := c.BindJSON(&changeRecodeBody)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 1,
+			"message":  common.Errors[1],
 		})
 		return
 	}
@@ -234,9 +234,9 @@ func ChangeDownCount(c *gin.Context) {
 	err := c.BindJSON(&changeDownCount)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 1,
+			"message":  common.Errors[1],
 		})
 		return
 	}

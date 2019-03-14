@@ -118,6 +118,7 @@ func main() {
 		v1.POST("/password/:retrieveCode", item.ChangePassword)
 		v1.POST("/recode/:retrieveCode", item.ChangeRecode)
 		v1.POST("/delete/:retrieveCode", item.DeleteManual)
+		v1.POST("/info/:retrieveCode",item.GetItemInfo)
 		v1.GET("/downCount/:retrieveCode", item.DownloadCount)
 		v1.POST("/downCount/:retrieveCode", item.ChangeDownCount)
 		v1.POST("/expireTime/:retrieveCode", item.ChangeExpireTime)
