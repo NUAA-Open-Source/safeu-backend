@@ -24,8 +24,8 @@ func DownloadCount(c *gin.Context) {
 	// 提取码错误
 	if len(itemList) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
-			"err_code": 7,
-			"message":  common.Errors[7],
+			"err_code": 10006,
+			"message":  common.Errors[10006],
 		})
 		log.Println(c.ClientIP(), " resource ", retrieveCode, " not found, cannot change download count")
 		return

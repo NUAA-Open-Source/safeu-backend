@@ -24,8 +24,8 @@ services:
       - MYSQL_DATABASE=safeu
     image: mariadb:10.3
     volumes:
-      - ../../db-data:/var/lib/mysql
-      - ../../conf/db-conf:/etc/mysql/conf.d
+      - ../../data-dev/mariadb:/var/lib/mysql
+      - ../../conf/mariadb:/etc/mysql/conf.d
     ports:
       - "3306:3306"
     networks:
@@ -34,6 +34,10 @@ services:
     image: redis:5.0.3-alpine
     environment:
       - TZ=Asia/Shanghai
+    volumes:
+      - ../../conf/redis/redis.conf:/usr/local/etc/redis/redis.conf
+#      - ../../data-dev/redis:/data # for redis persistent storage
+    entrypoint: redis-server /usr/local/etc/redis/redis.conf
     ports:
       - "6379:6379"
     networks:
