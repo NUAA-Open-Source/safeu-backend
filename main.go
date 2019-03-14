@@ -112,10 +112,10 @@ func main() {
 	}
 
 	// CSRF
-	store := cookie.NewStore([]byte("csrf-secret"))
-	r.Use(sessions.Sessions("safeu-session", store))
+	store := cookie.NewStore(common.CSRF_COOKIE_SECRET)
+	r.Use(sessions.Sessions(common.CSRF_SESSION_NAME, store))
 	r.Use(csrf.Middleware(csrf.Options{
-		Secret: "safeu-secret",
+		Secret: common.CSRF_SECRET,
 		ErrorFunc: func(c *gin.Context) {
 			//c.String(http.StatusBadRequest, "CSRF token mismatch")
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -135,7 +135,7 @@ func main() {
 
 	r.GET("/csrf", func(c *gin.Context) {
 		c.Header("X-CSRF-TOKEN", csrf.GetToken(c))
-		c.String(http.StatusOK, csrf.GetToken(c))
+		c.String(http.StatusOK, "IN HEADER")
 		log.Println(c.ClientIP(), "response CSRF token", csrf.GetToken(c))
 	})
 
@@ -145,7 +145,7 @@ func main() {
 		v1.POST("/password/:retrieveCode", item.ChangePassword)
 		v1.POST("/recode/:retrieveCode", item.ChangeRecode)
 		v1.POST("/delete/:retrieveCode", item.DeleteManual)
-		v1.GET("/downCount/:retrieveCode", item.DownloadCount)
+		v1.POST("/minusDownCount/:retrieveCode", item.MinusDownloadCount)
 		v1.POST("/downCount/:retrieveCode", item.ChangeDownCount)
 		v1.POST("/expireTime/:retrieveCode", item.ChangeExpireTime)
 		v1.POST("/item/:retrieveCode", item.DownloadItems)
