@@ -20,7 +20,6 @@ func GetItemInfo(c *gin.Context) {
 		return
 	}
 	tokenRedisClient := common.GetUserTokenRedisClient()
-
 	if common.FuncHandler(c, KeyISExistInRedis(getItemInfoBody.UserToken, tokenRedisClient), true, gin.ErrorTypePublic, 20201, http.StatusUnauthorized) {
 		return
 	}

@@ -84,16 +84,17 @@ func ChangeExpireTime(c *gin.Context) {
 func ChangePassword(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
 	var changePassBody ChangePassBody
-	err := c.BindJSON(&changePassBody)
-	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 1,
-			"message":  common.Errors[1],
-		})
+	// if err != nil {
+	// 	log.Println(err)
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"err_code": 1,
+	// 		"message":  common.Errors[1],
+	// 	})
+	// 	return
+	// }
+	if common.FuncHandler(c, c.BindJSON(&changePassBody), nil, gin.ErrorTypePublic, 10003, http.StatusBadRequest) {
 		return
 	}
-
 	tokenRedisClient := common.GetUserTokenRedisClient()
 	files, err := tokenRedisClient.SMembers(changePassBody.UserToken).Result()
 	// 无文件则未从redis成功读取用户Token 鉴权失败
