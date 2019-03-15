@@ -35,7 +35,7 @@ func Migrate(db *gorm.DB) {
 }
 
 // 系统启动后的任务
-func Tasks()  {
+func Tasks() {
 	// 主动删除
 	go item.ActiveDelete(common.GetReCodeRedisClient())
 }
@@ -84,7 +84,7 @@ func main() {
 	}
 
 	r := gin.Default()
-
+	r.Use(common.ErrorHandling())
 	// After init router
 	if common.DEBUG {
 		r.Use(cors.New(cors.Config{
@@ -118,7 +118,7 @@ func main() {
 		v1.POST("/password/:retrieveCode", item.ChangePassword)
 		v1.POST("/recode/:retrieveCode", item.ChangeRecode)
 		v1.POST("/delete/:retrieveCode", item.DeleteManual)
-		v1.POST("/info/:retrieveCode",item.GetItemInfo)
+		v1.POST("/info/:retrieveCode", item.GetItemInfo)
 		v1.GET("/downCount/:retrieveCode", item.DownloadCount)
 		v1.POST("/downCount/:retrieveCode", item.ChangeDownCount)
 		v1.POST("/expireTime/:retrieveCode", item.ChangeExpireTime)
@@ -128,3 +128,4 @@ func main() {
 
 	r.Run(":" + common.PORT) // listen and serve on 0.0.0.0:PORT
 }
+

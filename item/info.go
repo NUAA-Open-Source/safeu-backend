@@ -8,35 +8,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GetItemInfoBody struct {
+type getItemInfoBody struct {
 	UserToken string `json:"user_token"`
 }
 
+// GetItemInfo 获取文件信息
 func GetItemInfo(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
-	var getItemInfoBody GetItemInfoBody
-	if err := c.BindJSON(&getItemInfoBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 1,
-			"message":  common.Errors[1],
-		})
+	var getItemInfoBody getItemInfoBody
+	if common.FuncHandler(c, c.BindJSON(&getItemInfoBody), nil, gin.ErrorTypePublic, 20301, http.StatusBadRequest) {
 		return
 	}
 	tokenRedisClient := common.GetUserTokenRedisClient()
-	if !KeyISExistInRedis(getItemInfoBody.UserToken, tokenRedisClient) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 3,
-			"message":  common.Errors[3],
-		})
+
+	if common.FuncHandler(c, KeyISExistInRedis(getItemInfoBody.UserToken, tokenRedisClient), true, gin.ErrorTypePublic, 20201, http.StatusUnauthorized) {
 		return
 	}
 	db := common.GetDB()
 	var item Item
-	if db.Where("re_code = ?", retrieveCode).First(&item).RecordNotFound() {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 6,
-			"message":  common.Errors[6],
-		})
+	if common.FuncHandler(c, db.Where("re_code = ?", retrieveCode).First(&item).RecordNotFound(), false, gin.ErrorTypePublic, 20201, http.StatusUnauthorized) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
