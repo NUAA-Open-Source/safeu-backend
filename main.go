@@ -133,7 +133,7 @@ func main() {
 		})
 	})
 
-	r.GET("/csrf", func(c *gin.Context) {
+	r.GET("/csrf", CSRF, func(c *gin.Context) {
 		c.Header("X-CSRF-TOKEN", csrf.GetToken(c))
 		c.String(http.StatusOK, "IN HEADER")
 		log.Println(c.ClientIP(), "response CSRF token", csrf.GetToken(c))
