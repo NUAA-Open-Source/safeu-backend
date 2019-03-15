@@ -428,12 +428,6 @@ type FinishedFiles struct {
 	Files []uuid.UUID `json:"files"`
 }
 
-func UploadRegister(router *gin.RouterGroup) {
-	router.GET("/policy", GetPolicyToken)    //鉴权
-	router.POST("/callback", UploadCallBack) //回调
-	router.POST("/finish", FinishUpload)     //结束
-}
-
 func GetPolicyToken(c *gin.Context) {
 	response := get_policy_token()
 	c.String(http.StatusOK, response)

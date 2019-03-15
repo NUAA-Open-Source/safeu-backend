@@ -10,11 +10,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func DownloadCount(c *gin.Context) {
+type DownloadRequest struct {
+	Bucket string `json:"bucket"`
+	Path   string `json:"path"`
+}
+
+func MinusDownloadCount(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
 	// 为文件组生命周期准备
-	bucket := c.Query("bucket")
-	path := c.Query("path")
+
+	var downloadRequest DownloadRequest
+	if err := c.ShouldBindJSON(&downloadRequest); err != nil {
+		log.Println(c.ClientIP(), " Cannot get the download request json string")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 10005,
+			"message":  common.Errors[10005],
+		})
+		return
+	}
+	bucket := downloadRequest.Bucket
+	path := downloadRequest.Path
 
 	db := common.GetDB()
 

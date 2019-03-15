@@ -74,6 +74,7 @@ var CORS_ALLOW_HEADERS = []string{
 	"Content-Length",
 	"Content-Type",
 	"Token",
+	"X-CSRF-TOKEN",
 }
 
 var CORS_ALLOW_METHODS = []string{
@@ -84,3 +85,10 @@ var CORS_ALLOW_METHODS = []string{
 	"DELETE",
 	"HEAD",
 }
+
+var CSRF_COOKIE_SECRET = []byte("csrf-secret")
+
+const (
+	CSRF_SESSION_NAME string = "safeu-session"
+	CSRF_SECRET       string = "safeu-secret"
+)
