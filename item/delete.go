@@ -44,9 +44,9 @@ func DeleteManual(c *gin.Context) {
 	err := c.BindJSON(&deleteItemBody)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 10003,
+			"message":  common.Errors[10003],
 		})
 		return
 	}
@@ -54,8 +54,8 @@ func DeleteManual(c *gin.Context) {
 	reCodeRedisClient := common.GetReCodeRedisClient()
 	if deleteItemBody.UserToken != reCodeRedisClient.Get(retrieveCode).Val() {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"err_code": 6,
-			"message":  common.Errors[6],
+			"err_code": 20306,
+			"message":  common.Errors[20306],
 		})
 		return
 	}

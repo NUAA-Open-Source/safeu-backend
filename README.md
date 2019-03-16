@@ -13,6 +13,9 @@
       - [MariaDB](#mariadb)
       - [Redis](#redis)
     - [Cloud Services Config](#cloud-services-config)
+  - [Security](#security)
+    - [CORS](#cors)
+    - [CSRF](#csrf)
   - [Error Codes](#error-codes)
   - [Release Mode](#release-mode)
   - [Deploy (Development Environment)](#deploy-development-environment)
@@ -82,13 +85,29 @@ CREATE DATABASE safeu;
 
 在 `conf/` 下新建并填写 `cloud.yml` 文件，具体请参照 `conf/cloud.exmaple.yml` 。
 
+## Security
+
+安全设计。
+
+### CORS
+
+Cross-origin Resource Sharing 跨源资源共享。
+
+- 可共享域名由 [CORS_ALLOW_ORIGINS](common/const.go#L65) 决定；
+- 可返回的响应头由 [CORS_ALLOW_HEADERS](common/const.go#L72) 决定；
+- 允许的 HTTP 方法由 [CORS_ALLOW_METHODS](common/const.go#L80) 决定。
+
+### CSRF
+
+Cross-site Request Forgery 跨域请求伪造防护设计。
+
+先请求 `/csrf` 接口获得 CSRF 口令。当发送 POST 请求时，必须在请求头中加入 `X-CSRF-TOKEN` CSRF 认证头，值为获得到的 CSRF 口令，否则会得到 [10007](ERRORS.md#L15) 错误。
+
 ## Error Codes
 
 返回错误码。
 
-错误码对照文档：[common/error.go](common/error.go)
-
-> “代码即文档”
+错误码对照文档：[ERRORS](ERRORS.md)
 
 ## Release Mode
 

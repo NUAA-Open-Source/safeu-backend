@@ -428,12 +428,6 @@ type FinishedFiles struct {
 	Files []uuid.UUID `json:"files"`
 }
 
-func UploadRegister(router *gin.RouterGroup) {
-	router.GET("/policy", GetPolicyToken)    //鉴权
-	router.POST("/callback", UploadCallBack) //回调
-	router.POST("/finish", FinishUpload)     //结束
-}
-
 func GetPolicyToken(c *gin.Context) {
 	response := get_policy_token()
 	c.String(http.StatusOK, response)
@@ -446,16 +440,16 @@ func FinishUpload(c *gin.Context) {
 	err := c.BindJSON(&finishedFiles)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 10003,
+			"message":  common.Errors[10003],
 		})
 		return
 	}
 	if finishedFiles.Files == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 1,
-			"message":  common.Errors[0],
+			"err_code": 10004,
+			"message":  common.Errors[10004],
 		})
 		return
 	}
@@ -475,7 +469,6 @@ func FinishUpload(c *gin.Context) {
 	reCode := common.RandStringBytesMaskImprSrc(common.ReCodeLength)
 	var files []string
 	for _, value := range finishedFiles.Files {
-		fmt.Println(value)
 		files = append(files, value.String())
 		db.Model(&Item{}).Where("name = ? AND status = ?", value, common.UPLOAD_BEGIN).Update(map[string]interface{}{"re_code": reCode, "status": common.UPLOAD_FINISHED})
 	}
@@ -488,8 +481,8 @@ func FinishUpload(c *gin.Context) {
 	err = common.SetShadowKeyInRedis(reCode, owner, redisExpireTime, reCodeRedisClient)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+			"err_code": 10001,
+			"message":  common.Errors[10001],
 		})
 		return
 	}
@@ -522,7 +515,7 @@ func UploadCallBack(c *gin.Context) {
 	bytePublicKey, err := getPublicKey(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 0,
+			"err_code": 20000,
 			"message":  err,
 		})
 		return
@@ -531,7 +524,7 @@ func UploadCallBack(c *gin.Context) {
 	byteAuthorization, err := getAuthorization(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 0,
+			"err_code": 20000,
 			"message":  err,
 		})
 		return
@@ -541,7 +534,7 @@ func UploadCallBack(c *gin.Context) {
 	byteMD5, err := getMD5FromNewAuthString(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 0,
+			"err_code": 20000,
 			"message":  err,
 		})
 		return
@@ -559,7 +552,7 @@ func UploadCallBack(c *gin.Context) {
 	} else {
 		log.Println("Fail")
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 0,
+			"err_code": 20000,
 			"message":  err,
 		})
 		return
