@@ -88,7 +88,8 @@ func main() {
 	}
 
 	r := gin.Default()
-
+	// 错误处理
+	r.Use(common.ErrorHandling())
 	// After init router
 	// CORS
 	if common.DEBUG {
@@ -144,15 +145,16 @@ func main() {
 	{
 		v1.POST("/upload/callback", item.UploadCallBack) //回调
 	}
-	
+  
 	// the API with CSRF middleware
 	v1_csrf := r.Group("/v1", CSRF)
 	{
-		v1_csrf.GET("/upload/policy", item.GetPolicyToken)    //鉴权
-		v1_csrf.POST("/upload/finish", item.FinishUpload)     //结束
+		v1_csrf.GET("/upload/policy", item.GetPolicyToken) //鉴权
+		v1_csrf.POST("/upload/finish", item.FinishUpload)  //结束
 		v1_csrf.POST("/password/:retrieveCode", item.ChangePassword)
 		v1_csrf.POST("/recode/:retrieveCode", item.ChangeRecode)
 		v1_csrf.POST("/delete/:retrieveCode", item.DeleteManual)
+		v1_csrf.POST("/info/:retrieveCode", item.GetItemInfo)
 		v1_csrf.POST("/minusDownCount/:retrieveCode", item.MinusDownloadCount)
 		v1_csrf.POST("/downCount/:retrieveCode", item.ChangeDownCount)
 		v1_csrf.POST("/expireTime/:retrieveCode", item.ChangeExpireTime)

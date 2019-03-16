@@ -42,17 +42,17 @@ func ChangeExpireTime(c *gin.Context) {
 	err := c.BindJSON(&changeExpireTimeBody)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 10003,
+			"message":  common.Errors[10003],
 		})
 		return
 	}
 	// 时间长度检查
 	if changeExpireTimeBody.NewExpireTime > common.FILE_MAX_EXIST_TIME || changeExpireTimeBody.NewExpireTime <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 2,
-			"message":  common.Errors[2],
+			"err_code": 10004,
+			"message":  common.Errors[10004],
 		})
 		return
 	}
@@ -60,8 +60,8 @@ func ChangeExpireTime(c *gin.Context) {
 	files, err := tokenRedisClient.SMembers(changeExpireTimeBody.UserToken).Result()
 	if len(files) == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"err_code": 3,
-			"message":  common.Errors[3],
+			"err_code": 20201,
+			"message":  common.Errors[20201],
 		})
 		return
 	}
@@ -87,20 +87,19 @@ func ChangePassword(c *gin.Context) {
 	err := c.BindJSON(&changePassBody)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 10003,
+			"message":  common.Errors[10003],
 		})
 		return
 	}
-
 	tokenRedisClient := common.GetUserTokenRedisClient()
 	files, err := tokenRedisClient.SMembers(changePassBody.UserToken).Result()
 	// 无文件则未从redis成功读取用户Token 鉴权失败
 	if len(files) == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"err_code": 3,
-			"message":  common.Errors[3],
+			"err_code": 20201,
+			"message":  common.Errors[20201],
 		})
 		return
 	}
@@ -138,9 +137,9 @@ func ChangeRecode(c *gin.Context) {
 	err := c.BindJSON(&changeRecodeBody)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 10003,
+			"message":  common.Errors[10003],
 		})
 		return
 	}
@@ -151,8 +150,8 @@ func ChangeRecode(c *gin.Context) {
 	if len(files) == 0 {
 		log.Println("Can`t Find User Token In Redis", changeRecodeBody.UserToken)
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"err_code": 3,
-			"message":  common.Errors[3],
+			"err_code": 20201,
+			"message":  common.Errors[20201],
 		})
 		return
 	}
@@ -172,8 +171,8 @@ func ChangeRecode(c *gin.Context) {
 	if CheckReCodeRepeatInDB(changeRecodeBody.NewReCode, db) {
 		log.Println("Find reCode Repeat In DB", changeRecodeBody.NewReCode)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 4,
-			"message":  common.Errors[4],
+			"err_code": 20307,
+			"message":  common.Errors[20307],
 		})
 		return
 	}
@@ -203,8 +202,8 @@ func ChangeRecode(c *gin.Context) {
 	if changeRecodeBody.Auth == "" {
 		log.Println("Item had password,but not Auth give  Previous Recode:", retrieveCode)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"err_code": 5,
-			"message":  common.Errors[5],
+			"err_code": 10005,
+			"message":  common.Errors[10005],
 		})
 		return
 	}
@@ -234,9 +233,9 @@ func ChangeDownCount(c *gin.Context) {
 	err := c.BindJSON(&changeDownCount)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"err_code": 0,
-			"message":  err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 10003,
+			"message":  common.Errors[10003],
 		})
 		return
 	}
@@ -244,8 +243,8 @@ func ChangeDownCount(c *gin.Context) {
 	files, err := tokenRedisClient.SMembers(changeDownCount.UserToken).Result()
 	if len(files) == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"err_code": 3,
-			"message":  common.Errors[3],
+			"err_code": 20201,
+			"message":  common.Errors[20201],
 		})
 		return
 	}

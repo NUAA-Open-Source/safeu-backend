@@ -47,7 +47,8 @@
 | 20303 | Token expired | Token 已过期 |
 | 20304 | Token revoked | Token 不合法 |
 | 20305 | Can't get the download link | 无法获取下载链接 |
-
+| 20306 | The retrieve code mismatch auth | 提取码无法对应auth |
+| 20307 | The retrieve code repeat | 提取码重复 |
 ### Delete Errors
 
 204xx 为删除相关错误。
