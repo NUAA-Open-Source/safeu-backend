@@ -11,9 +11,27 @@ import (
 // FuncHandler 统一错误处理
 // i 传入error,bool,int
 // judge 触发正确值 非error环境下有效
-// http status,errorCode
-// 触发了错误 return True
-// else return false
+// 如果触发了错误 return True
+// Example:
+// 1. common.FuncHandler(c, c.BindJSON(&x), nil, http.StatusBadRequest, 20301)
+// ==   if(c.BindJSON(&x) != nil){
+// 			c.JSON(http.StatusBadRequest, gin.H{
+//			"err_code": 20301,
+//			"message":  common.Errors[20301],
+//			})
+// 	 	}
+// 2. common.FuncHandler(c, c.BindJSON(&x), nil, http.StatusBadRequest, 20301,fmt.Sprintf("BindJson fail with %v",x))
+// ==   if(c.BindJSON(&x) != nil){
+// 			log.Println(fmt.Sprintf("BindJson fail with %v",x))
+// 			c.JSON(http.StatusBadRequest, gin.H{
+//			"err_code": 20301,
+//			"message":  common.Errors[20301],
+//			})
+// 	 	}
+// 3. common.FuncHandler(c, isOdd(2), true, fmt.Sprintf("%d is even",2))
+// ==   if(isOdd(2) != true){
+// 			log.Println(fmt.Sprintf("%d is even",2))
+// 	 	}
 func FuncHandler(c *gin.Context, i interface{}, judge interface{}, option ...interface{}) bool {
 	generalReturn := buildErrorMeta(option)
 	errType := gin.ErrorTypePrivate

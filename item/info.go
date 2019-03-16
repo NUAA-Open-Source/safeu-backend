@@ -16,7 +16,7 @@ type getItemInfoBody struct {
 func GetItemInfo(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
 	var getItemInfoBody getItemInfoBody
-	if common.FuncHandler(c, c.BindJSON(&getItemInfoBody), nil, http.StatusBadRequest, 20301,"error") {
+	if common.FuncHandler(c, c.BindJSON(&getItemInfoBody), nil, http.StatusBadRequest, 20301) {
 		return
 	}
 	tokenRedisClient := common.GetUserTokenRedisClient()
