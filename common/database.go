@@ -70,8 +70,8 @@ func InitDB() *gorm.DB {
 	// 重试连接
 	for db, e = gorm.Open("mysql", connectString); e != nil; {
 		fmt.Println("Gorm Open DB Err: ", err)
-		log.Println("GORM cannot connect to database, retry in 20 seconds...")
-		time.Sleep(20 * time.Second)
+		log.Println(fmt.Sprintf("GORM cannot connect to database, retry in %d seconds...",DB_CONNECT_FAIL_RETRY_INTERVAL))
+		time.Sleep(DB_CONNECT_FAIL_RETRY_INTERVAL * time.Second)
 	}
   
 	log.Println("Connected to database ", DBConf.Master.User, " ", DBConf.Master.Pass, " ", DBConf.Master.Host, ":", DBConf.Master.Port, " ", DBConf.Master.Database)

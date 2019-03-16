@@ -53,7 +53,8 @@ const (
 const (
 	TOKEN_VALID_MINUTES int32 = 15 // Token 有效时长
 )
-
+// 数据库连接失败重试间隔
+const DB_CONNECT_FAIL_RETRY_INTERVAL = 20
 // RedisDB
 const (
 	USER_TOKEN = iota // 0
