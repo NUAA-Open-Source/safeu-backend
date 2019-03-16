@@ -84,15 +84,13 @@ func ChangeExpireTime(c *gin.Context) {
 func ChangePassword(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
 	var changePassBody ChangePassBody
-	// if err != nil {
-	// 	log.Println(err)
-	// 	c.JSON(http.StatusBadRequest, gin.H{
-	// 		"err_code": 1,
-	// 		"message":  common.Errors[1],
-	// 	})
-	// 	return
-	// }
-	if common.FuncHandler(c, c.BindJSON(&changePassBody), nil, gin.ErrorTypePublic, 10003, http.StatusBadRequest) {
+	err := c.BindJSON(&changePassBody)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 1,
+			"message":  common.Errors[1],
+		})
 		return
 	}
 	tokenRedisClient := common.GetUserTokenRedisClient()
