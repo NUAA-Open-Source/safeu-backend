@@ -73,6 +73,7 @@ func InitDB() *gorm.DB {
 		log.Println("GORM cannot connect to database, retry in 20 seconds...")
 		time.Sleep(20 * time.Second)
 	}
+  
 	log.Println("Connected to database ", DBConf.Master.User, " ", DBConf.Master.Pass, " ", DBConf.Master.Host, ":", DBConf.Master.Port, " ", DBConf.Master.Database)
 	db.DB().SetMaxIdleConns(DBConf.Master.MaxIdleConns)
 	DB = db

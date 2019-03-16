@@ -29,7 +29,7 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	csrf "github.com/utrack/gin-csrf"
+	"github.com/utrack/gin-csrf"
 )
 
 func Migrate(db *gorm.DB) {
@@ -145,6 +145,7 @@ func main() {
 	{
 		v1.POST("/upload/callback", item.UploadCallBack) //回调
 	}
+  
 	// the API with CSRF middleware
 	v1_csrf := r.Group("/v1", CSRF)
 	{

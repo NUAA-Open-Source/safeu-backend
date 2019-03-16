@@ -158,7 +158,9 @@ var Errors = map[int]string{
 	20303: "Token expired",
 	20304: "Token revoked",
 	20305: "Can't get the download link",
+
 	20306: "The retrieve code mismatch auth",
 	20307: "The retrieve code repeat",
+
 	20501: "Incorrect password",
 }
