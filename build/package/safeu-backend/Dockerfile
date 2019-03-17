@@ -6,7 +6,7 @@ WORKDIR $GOPATH/src/a2os/safeu-backend
 ADD . $GOPATH/src/a2os/safeu-backend/
 
 # Add dependencies
-RUN go get -u github.com/kardianos/govendor && go get github.com/pilu/fresh && govendor sync
+# RUN go get -u github.com/kardianos/govendor && govendor sync
 
 # Build package
 RUN go build .
