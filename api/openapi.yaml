@@ -37,7 +37,125 @@ tags:
     description: Download item(s) operations
   - name: validation
     description: Validation operations
+  - name: miscellaneous
+    description: Miscellaneous operations
 paths:
+  /ping:
+    get:
+      tags:
+        - miscellaneous
+      summary: PING-PONG
+      operationId: ping
+      responses:
+        "200":
+          description: 节点正常
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 返回信息
+                    example: pong
+
+  /csrf:
+    get:
+      tags:
+        - miscellaneous
+      summary: CSRF 口令获得接口
+      operationId: getCSRFToken
+      responses:
+        "200":
+          description: 获得 CSRF 口令
+          headers:
+            X-CSRF-TOKEN:
+              description: CSRF 口令
+              schema:
+                type: string
+          content:
+            "text/plain":
+              schema:
+                type: string
+                description: 返回信息
+                example: IN HEADER
+
+  /v1/info/{retrieveCode}:
+    post:
+      tags:
+        - miscellaneous
+      summary: 文件（组）信息获取接口
+      operationId: getFileInfo
+      parameters:
+        - name: retrieveCode
+          in: path
+          description: 提取码
+          required: true
+          schema:
+            type: string
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
+            type: string
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                user_token:
+                  type: string
+                  description: 文件所有者信息
+      responses:
+        "200":
+          description: 获得文件信息
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  down_count:
+                    type: integer
+                    format: int64
+                    description: 可下载次数
+                  expired_at:
+                    type: string
+                    format: date-time
+                    description: 文件到期时间
+                  is_public:
+                    type: boolean
+                    description: 文件是否加密
+        "400":
+          description: 无法获得请求参数
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
+                    type: string
+                    description: 错误原因
+        "401":
+          description: 认证失败
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  err_code:
+                    type: integer
+                    format: int64
+                    description: 错误码
+                  message:
+                    type: string
+                    description: 错误原因
+
   /v1/upload/policy:
     get:
       tags:
@@ -89,11 +207,19 @@ paths:
                   uuid:
                     type: string
                     description: 文件uuid
+  
   /v1/upload/finish:
     post:
       tags:
         - upload
       summary: 结束所有上传文件的上传操作
+      parameters:
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
+            type: string
       requestBody:
         content:
           "application/json":
@@ -133,6 +259,12 @@ paths:
           description: 提取码
           required: true
           schema:
+            type: string
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
             type: string
       requestBody:
         content:
@@ -195,6 +327,12 @@ paths:
       summary: 修改文件提取码
       operationId: changeFileRetrieveCode
       parameters:
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
+            type: string
         - name: retrieveCode
           in: path
           description: 提取码
@@ -278,6 +416,12 @@ paths:
       summary: 修改文件过期时间
       operationId: changeFileExpireTime
       parameters:
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
+            type: string
         - name: retrieveCode
           in: path
           description: 提取码
@@ -359,6 +503,12 @@ paths:
       summary: 手动删除文件接口
       operationId: deleteFileManual
       parameters:
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
+            type: string
         - name: retrieveCode
           in: path
           description: 提取码
@@ -422,6 +572,12 @@ paths:
       summary: 修改文件下载次数
       operationId: changeFileDownCount
       parameters:
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
+            type: string
         - name: retrieveCode
           in: path
           description: 提取码
@@ -480,30 +636,38 @@ paths:
                   message:
                     type: string
                     description: 错误原因
-    get:
+  
+  /v1/minusDownCount/{retrieveCode}:
+    post:
       tags:
         - download
       summary: 下载感知接口
       operationId: downloadAwareness
       parameters:
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
+            type: string
         - name: retrieveCode
           in: path
           description: 提取码
           required: true
           schema:
             type: string
-        - name: bucket
-          in: query
-          description: 文件所在 OSS 桶名
-          required: true
-          schema:
-            type: string
-        - name: path
-          in: query
-          description: 文件所在 OSS 桶中的绝对路径
-          required: true
-          schema:
-            type: string
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                bucket:
+                  description: 文件所在 OSS 桶名
+                  type: string
+                path:
+                  description: 文件所在 OSS 桶中的绝对路径
+                  type: string
       responses:
         "200":
           description: 成功接收下载信息
@@ -541,6 +705,12 @@ paths:
       summary: 获取下载/打包文件连接
       operationId: downloadItem
       parameters:
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
+            type: string
         - name: Token
           in: header
           description: 临时认证口令
@@ -662,6 +832,12 @@ paths:
       summary: 提取码认证接口
       operationId: validateRC
       parameters:
+        - name: X-CSRF-TOKEN
+          in: header
+          description: CSRF 口令
+          required: true
+          schema: 
+            type: string
         - name: retrieveCode
           in: path
           description: 提取码
