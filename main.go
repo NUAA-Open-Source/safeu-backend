@@ -97,6 +97,7 @@ func main() {
 			AllowAllOrigins:  true,
 			AllowMethods:     common.CORS_ALLOW_METHODS,
 			AllowHeaders:     common.CORS_ALLOW_HEADERS,
+			ExposeHeaders:    common.CORS_EXPOSE_HEADERS,
 			AllowCredentials: true,
 			MaxAge:           12 * time.Hour,
 		}))
@@ -107,6 +108,7 @@ func main() {
 			AllowOrigins:     common.CORS_ALLOW_ORIGINS,
 			AllowMethods:     common.CORS_ALLOW_METHODS,
 			AllowHeaders:     common.CORS_ALLOW_HEADERS,
+			ExposeHeaders:    common.CORS_EXPOSE_HEADERS,
 			AllowCredentials: true,
 			MaxAge:           12 * time.Hour,
 		}))
@@ -145,7 +147,7 @@ func main() {
 	{
 		v1.POST("/upload/callback", item.UploadCallBack) //回调
 	}
-  
+
 	// the API with CSRF middleware
 	v1_csrf := r.Group("/v1", CSRF)
 	{
