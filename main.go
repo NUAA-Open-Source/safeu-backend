@@ -94,11 +94,15 @@ func main() {
 	// CORS
 	if common.DEBUG {
 		r.Use(cors.New(cors.Config{
-			AllowAllOrigins:  true,
+			// The value of the 'Access-Control-Allow-Origin' header in the
+			// response must not be the wildcard '*' when the request's
+			// credentials mode is 'include'.
+			AllowOrigins:     common.CORS_ALLOW_DEBUG_ORIGINS,
 			AllowMethods:     common.CORS_ALLOW_METHODS,
 			AllowHeaders:     common.CORS_ALLOW_HEADERS,
 			ExposeHeaders:    common.CORS_EXPOSE_HEADERS,
 			AllowCredentials: true,
+			AllowWildcard:    true,
 			MaxAge:           12 * time.Hour,
 		}))
 		//r.Use(CORS())

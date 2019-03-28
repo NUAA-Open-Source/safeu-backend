@@ -4,6 +4,7 @@ log/
 # Ignore docker database volume
 db-data/
 data/
+data-dev/
 
 # Ignore binary file and only file
 safeu-backend
