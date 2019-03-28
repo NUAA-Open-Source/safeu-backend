@@ -72,12 +72,18 @@ var CORS_ALLOW_ORIGINS = []string{
 	"http://test.safeu.a2os.club",
 }
 
+var CORS_ALLOW_DEBUG_ORIGINS = []string{
+	"http://*",
+	"https://*",
+}
+
 var CORS_ALLOW_HEADERS = []string{
 	"Origin",
 	"Content-Length",
 	"Content-Type",
 	"Token",
 	"X-CSRF-TOKEN",
+	"withCredentials",
 }
 
 var CORS_ALLOW_METHODS = []string{
