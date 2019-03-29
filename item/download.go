@@ -368,10 +368,17 @@ func GetSignURL(itemBucket string, itemPath string, client *oss.Client) (string,
 		log.Println(fmt.Sprintf("Func: GetSignURL Get Client %v Bucket %s Failed %s", client, itemBucket, err.Error()))
 		return "", err
 	}
-	signedURL, err := bucket.SignURL(itemPath, oss.HTTPGet, common.FILE_DOWNLOAD_SIGNURL_TIME)
+
+	// 请求头信息进行签名
+	options := []oss.Option{
+		oss.ContentType(common.OSS_DOWNLOAD_CONTENT_TYPE),
+	}
+
+	signedURL, err := bucket.SignURL(itemPath, oss.HTTPGet, common.FILE_DOWNLOAD_SIGNURL_TIME, options...)
 	if err != nil {
 		log.Println(fmt.Sprintf("Func: GetSignURL Get Bucket %s Object %s Failed %s", itemBucket, itemPath, err.Error()))
 		return "", err
 	}
+	log.Println("signed url: ", signedURL)
 	return signedURL, nil
 }

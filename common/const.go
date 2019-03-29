@@ -106,3 +106,6 @@ const (
 	CSRF_SESSION_NAME string = "safeu-session"
 	CSRF_SECRET       string = "safeu-secret"
 )
+
+// OSS 下载请求所包含的 Content-Type 值，用于 URL 签名
+var OSS_DOWNLOAD_CONTENT_TYPE = "application/x-www-form-urlencoded"
