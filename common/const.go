@@ -108,4 +108,4 @@ const (
 )
 
 // OSS 下载请求所包含的 Content-Type 值，用于 URL 签名
-var OSS_DOWNLOAD_CONTENT_TYPE = "application/x-www-form-urlencoded"
+var OSS_DOWNLOAD_CONTENT_TYPE = ""
