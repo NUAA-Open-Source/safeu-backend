@@ -1,5 +1,20 @@
 version: '3'
 services:
+  nginx:
+    image: nginx
+    volumes:
+      - ../../conf/nginx/nginx.dev.conf:/etc/nginx/nginx.conf
+      - ../../conf/nginx/testapi.safeu.a2os.club:/etc/nginx/sites-enabled/testapi.safeu.a2os.club
+      - ~/.acme.sh/testapi.safeu.a2os.club:/opt/nginx/testapi.safeu.a2os.club/
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - "80:80"
+    networks:
+      - webnet
+    depends_on:
+      - web
+    restart: on-failure
   web:
     build:
       context: ../..
@@ -17,6 +32,7 @@ services:
       - db
       - redis
     restart: always
+
   db:
     environment:
       - TZ=Asia/Shanghai
@@ -30,6 +46,8 @@ services:
       - "3306:3306"
     networks:
       - webnet
+    restart: on-failure
+    
   redis:
     image: redis:5.0.3-alpine
     environment:
@@ -42,6 +60,7 @@ services:
       - "6379:6379"
     networks:
       - webnet
+    restart: on-failure
 
 networks:
   webnet:

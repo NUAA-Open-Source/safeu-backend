@@ -14,13 +14,12 @@ RUN mkdir -p $GOPATH/src/golang.org/x/ && \
     git clone https://gitee.com/Triple-Z/golang-sys.git $GOPATH/src/golang.org/x/sys/
 
 # Add dependencies
-# RUN go get -u github.com/kardianos/govendor && go get github.com/pilu/fresh && govendor sync
 RUN go get github.com/pilu/fresh
 
 # Build package
-RUN go build .
+RUN go build -o safeu-backend-dev .
 
 EXPOSE 8080
 
 ENTRYPOINT ["fresh"]
-#ENTRYPOINT ["./safeu-backend-dev"]
+# ENTRYPOINT ["./safeu-backend-dev"]

@@ -13,6 +13,6 @@ COPY conf/db.example.json $GOPATH/src/a2os/safeu-backend/conf/db.json
 # Build package
 RUN go build .
 
-EXPOSE 8080
+# EXPOSE 8080
 
 ENTRYPOINT ["./safeu-backend"]

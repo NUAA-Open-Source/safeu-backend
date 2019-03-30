@@ -2,7 +2,7 @@
 # Author:   TripleZ<me@triplez.cn>
 # Date:     2019-03-11
 
-echo -e "\n Build, up, down, check logs for SafeU production docker clusters.\n"
+echo -e "\n Build, up, down, restart, pull, check logs for SafeU production docker clusters.\n"
 
 if [ "$1" == "up" ]
 then
@@ -16,6 +16,14 @@ then
 elif [ "$1" == "build" ]
 then
     sudo docker-compose -f ../deployments/production/docker-compose.yml build --force-rm
+
+elif [ "$1" == "restart" ]
+then
+    sudo docker-compose -f ../deployments/production/docker-compose.yml restart -t 10
+
+elif [ "$1" == "pull" ]
+then
+    sudo docker-compose -f ../deployments/production/docker-compose.yml pull
 
 elif [ "$1" == "logs" ]
 then
@@ -40,13 +48,11 @@ then
    down       Down SafeU prod containers
    help       Show this help message
    logs       View output from prod containers
+   pull       Pull SafeU prod container images
+   restart    Restart SafeU prod containers
    up         Up SafeU prod containers with force recreate and build
-"
+   "
 
 else
     echo -e " Cannot match the command \"$1\", please type \"help\" command for help."
 fi
-
-
-
-
