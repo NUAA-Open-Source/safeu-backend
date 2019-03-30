@@ -2,7 +2,7 @@
 # Author:   TripleZ<me@triplez.cn>
 # Date:     2019-03-11
 
-echo -e "\n Build, up, down, check logs for SafeU development docker clusters.\n"
+echo -e "\n Build, up, down, restart, pull, check logs for SafeU development docker clusters.\n"
 
 if [ "$1" == "up" ]
 then
@@ -16,15 +16,18 @@ then
     else
         sudo docker-compose -f ../deployments/development/docker-compose.yml up
     fi
-
 elif [ "$1" == "down" ]
 then
     sudo docker-compose -f ../deployments/development/docker-compose.yml down
-
 elif [ "$1" == "build" ]
 then
     sudo docker-compose -f ../deployments/development/docker-compose.yml build --force-rm
-
+elif [ "$1" == "pull" ]
+then
+    sudo docker-compose -f ../deployments/development/docker-compose.yml pull
+elif [ "$1" == "restart" ]
+then
+    sudo docker-compose -f ../deployments/development/docker-compose.yml restart -t 10
 elif [ "$1" == "logs" ]
 then
     echo -e " Follow log output? (y/n, default: n): \c"
@@ -36,7 +39,6 @@ then
     else
         sudo docker-compose -f ../deployments/development/docker-compose.yml logs
     fi
-
 elif [ "$1" == "help" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
     echo -e " Usage:
@@ -48,10 +50,10 @@ then
    down       Down SafeU dev containers
    help       Show this help message
    logs       View output from dev containers
+   pull       Pull SafeU dev container images
+   restart    Restart SafeU dev containers
    up         Up SafeU dev containers
-"
-
+   "
 else
     echo -e " Cannot match the command \"$1\", please type \"help\" command for help."
 fi
-

@@ -69,7 +69,7 @@ func InitDB() *gorm.DB {
 	connectString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&collation=utf8mb4_bin&parseTime=True&loc=%s", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Host, DBConf.Master.Port, DBConf.Master.Database, MYSQLTIMEZONE)
 	// 重试连接
 	for db, e = gorm.Open("mysql", connectString); e != nil; {
-		fmt.Println("Gorm Open DB Err: ", err)
+		fmt.Println("Gorm Open DB Err: ", e)
 		log.Println(fmt.Sprintf("GORM cannot connect to database, retry in %d seconds...", DB_CONNECT_FAIL_RETRY_INTERVAL))
 		time.Sleep(DB_CONNECT_FAIL_RETRY_INTERVAL * time.Second)
 	}
