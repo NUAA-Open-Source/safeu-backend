@@ -13,6 +13,7 @@
 | 10005 | Missing required parameter | 缺少参数 |
 | 10006 | Resource unavailable | 资源不存在 |
 | 10007 | CSRF token mismatch | CSRF 认证失败 |
+| 10008 | This service is undergoing maintenance | 服务处于维护模式，无法提供服务 |
 
 ## Application Errors
 
