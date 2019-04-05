@@ -240,6 +240,7 @@ func DownloadItems(c *gin.Context) {
 			zipPack.Type = resJson["type"]
 			zipPack.ArchiveType = common.ARCHIVE_FULL
 			zipPack.DownCount = common.INFINITE_DOWNLOAD
+			zipPack.ExpiredAt = itemList[0].ExpiredAt // 过期时间跟随生成压缩包的文件有效时间
 
 			db.Create(&zipPack)
 			log.Println("Generated the full files zip package for retrieve code \"", retrieveCode, "\"")
@@ -293,13 +294,15 @@ func DownloadItems(c *gin.Context) {
 		Bucket:       resJson["bucket"],
 		Endpoint:     resJson["endpoint"],
 		Path:         resJson["path"],
+		ExpiredAt:    itemList[0].ExpiredAt, // 过期时间跟随生成压缩包的文件有效时间
 	}
 	// 先清除数据库之前同提取码的自定义压缩包记录
-	var deleteZipPacks []Item
-	db.Where("re_code = ? AND (status = ? OR status = ?) AND archive_type = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, common.ARCHIVE_CUSTOM).Find(&deleteZipPacks)
-	for _, deleteZipPack := range deleteZipPacks {
-		db.Delete(&deleteZipPack)
-	}
+	// [4.5.2019] 不需要，不同压缩包可以共存
+	//var deleteZipPacks []Item
+	//db.Where("re_code = ? AND (status = ? OR status = ?) AND archive_type = ?", retrieveCode, common.UPLOAD_FINISHED, common.FILE_ACTIVE, common.ARCHIVE_CUSTOM).Find(&deleteZipPacks)
+	//for _, deleteZipPack := range deleteZipPacks {
+	//	db.Delete(&deleteZipPack)
+	//}
 
 	db.Create(&zipPack)
 	log.Println("Generated the custom files zip package for retrieve code \"", retrieveCode, "\"")
@@ -322,6 +325,7 @@ func DownloadItems(c *gin.Context) {
 func ZipItemsFaaS(zipItems []ZipItem, retrieveCode string, isFull bool, endpoint string) map[string]string {
 	reqJson := map[string]interface{}{
 		"re_code": retrieveCode,
+		"uuid":    uuid.Must(uuid.NewV4()).String(),
 		"items":   zipItems,
 		"full":    isFull,
 	}
@@ -335,6 +339,7 @@ func ZipItemsFaaS(zipItems []ZipItem, retrieveCode string, isFull bool, endpoint
 	// 请求函数计算
 	res, err := http.Post(endpoint, "application/json", bytes.NewBuffer(bytesRepresentation))
 	if err != nil {
+		// TODO: 加入重试机制
 		log.Println(err)
 	}
 
