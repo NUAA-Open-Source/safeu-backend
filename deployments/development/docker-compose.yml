@@ -20,8 +20,8 @@ services:
       context: ../..
       dockerfile: ././build/package/safeu-backend-dev/Dockerfile-compose
     volumes:
-#      - ../..:/go/src/a2os/safeu-backend/
       - ../../log/web:/go/src/a2os/safeu-backend/log/
+      # - ../..:/go/src/a2os/safeu-backend/
     environment:
       - TZ=Asia/Shanghai
     ports:
@@ -54,7 +54,7 @@ services:
       - TZ=Asia/Shanghai
     volumes:
       - ../../conf/redis/redis.conf:/usr/local/etc/redis/redis.conf
-#      - ../../data-dev/redis:/data # for redis persistent storage
+      - ../../data-dev/redis:/data # for redis persistent storage
     entrypoint: redis-server /usr/local/etc/redis/redis.conf
     ports:
       - "6379:6379"

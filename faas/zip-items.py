@@ -50,6 +50,7 @@ def handler(environ, start_response):
     # zip name
     re_code = request_body_json.get("re_code")
     is_full = request_body_json.get("full")
+    uuid = request_body_json.get("uuid")
     tmpdir = '/tmp/download/'
 
     os.system("rm -rf /tmp/*")
@@ -78,9 +79,9 @@ def handler(environ, start_response):
     part_size = oss2.determine_part_size(total_size, preferred_size = 128 * 1024)
 
     if is_full:
-        zip_path = 'full-archive/' + re_code + '.zip'
+        zip_path = 'full-archive/' + re_code + '/' + uuid + '.zip'
     else:
-        zip_path = 'custom-archive/' + re_code + '.zip'
+        zip_path = 'custom-archive/' + re_code + '/' + uuid + '.zip'
 
     # use the last bucket to upload zip package
     upload_id = bucket.init_multipart_upload(zip_path).upload_id
