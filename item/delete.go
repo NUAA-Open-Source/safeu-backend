@@ -7,9 +7,9 @@ import (
 	"sync"
 
 	"a2os/safeu-backend/common"
-	"github.com/gin-gonic/gin"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 )
 

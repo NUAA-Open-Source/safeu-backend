@@ -5,8 +5,8 @@ services:
     volumes:
       - ../../conf/nginx/nginx.dev.conf:/etc/nginx/nginx.conf
       - ../../conf/nginx/testapi.safeu.a2os.club:/etc/nginx/sites-enabled/testapi.safeu.a2os.club
-      - ~/.acme.sh/testapi.safeu.a2os.club:/opt/nginx/testapi.safeu.a2os.club/
-    environment:
+      - /etc/letsencrypt/live/testapi.safeu.a2os.club:/opt/nginx/testapi.safeu.a2os.club/
+    environment:res
       - TZ=Asia/Shanghai
     ports:
       - "80:80"
