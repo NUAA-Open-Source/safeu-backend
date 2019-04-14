@@ -6,7 +6,7 @@ echo -e "\n Build, up, down, restart, pull, check logs for SafeU development doc
 
 if [ "$1" == "up" ]
 then
-    mkdir -p ../db-data
+    mkdir -p ../data-dev
     echo -e " Running dockers on daemon mode? (y/n, default: n): \c"
     read isD
 
