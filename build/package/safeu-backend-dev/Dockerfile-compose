@@ -5,7 +5,7 @@ MAINTAINER TripleZ "me@triplez.cn"
 WORKDIR $GOPATH/src/a2os/safeu-backend
 ADD . $GOPATH/src/a2os/safeu-backend/
 
-COPY conf/db.example.json $GOPATH/src/a2os/safeu-backend/conf/db.json
+# COPY conf/db.example.json $GOPATH/src/a2os/safeu-backend/conf/db.json
 
 # Solution for Chinese special network enviornment 
 # RUN mkdir -p $GOPATH/src/golang.org/x/ && \

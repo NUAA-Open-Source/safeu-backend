@@ -12,22 +12,22 @@ then
 
     if [ "$isD" = "y" ]||[ "$isD" = "Y" ]
     then
-        sudo docker-compose -f ../deployments/development/docker-compose.yml up -d
+        sudo docker-compose -f ../deployments/dev/docker-compose.yml up -d
     else
-        sudo docker-compose -f ../deployments/development/docker-compose.yml up
+        sudo docker-compose -f ../deployments/dev/docker-compose.yml up
     fi
 elif [ "$1" == "down" ]
 then
-    sudo docker-compose -f ../deployments/development/docker-compose.yml down
+    sudo docker-compose -f ../deployments/dev/docker-compose.yml down
 elif [ "$1" == "build" ]
 then
-    sudo docker-compose -f ../deployments/development/docker-compose.yml build --force-rm
+    sudo docker-compose -f ../deployments/dev/docker-compose.yml build --force-rm
 elif [ "$1" == "pull" ]
 then
-    sudo docker-compose -f ../deployments/development/docker-compose.yml pull
+    sudo docker-compose -f ../deployments/dev/docker-compose.yml pull
 elif [ "$1" == "restart" ]
 then
-    sudo docker-compose -f ../deployments/development/docker-compose.yml restart -t 10
+    sudo docker-compose -f ../deployments/dev/docker-compose.yml restart -t 10
 elif [ "$1" == "logs" ]
 then
     echo -e " Follow log output? (y/n, default: n): \c"
@@ -35,9 +35,9 @@ then
     echo ""
     if [ "$isF" == "y" ] || [ "$isF" == "Y" ]
     then 
-        sudo docker-compose -f ../deployments/development/docker-compose.yml logs -f
+        sudo docker-compose -f ../deployments/dev/docker-compose.yml logs -f
     else
-        sudo docker-compose -f ../deployments/development/docker-compose.yml logs
+        sudo docker-compose -f ../deployments/dev/docker-compose.yml logs
     fi
 elif [ "$1" == "help" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then

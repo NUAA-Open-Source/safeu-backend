@@ -1,23 +1,23 @@
 version: '3'
 services:
-  nginx:
-    image: nginx
-    volumes:
-      - ../../conf/nginx/nginx.prod.conf:/etc/nginx/nginx.conf
-      - ../../conf/nginx/api.safeu.a2os.club:/etc/nginx/sites-enabled/api.safeu.a2os.club
-      - /etc/letsencrypt/live/api.safeu.a2os.club:/opt/nginx/api.safeu.a2os.club/
-    environment:
-      - TZ=Asia/Shanghai
-    ports:
-      - "80:80"
-    networks:
-      - lbnet
-    depends_on:
-      - web1
-      - web2
-    restart: on-failure
+#  nginx:
+#    image: nginx
+#    volumes:
+#      - ../../conf/nginx/nginx.prod.conf:/etc/nginx/nginx.conf
+#      - ../../conf/nginx/api.safeu.a2os.club:/etc/nginx/sites-enabled/api.safeu.a2os.club
+#      - /etc/letsencrypt/live/api.safeu.a2os.club:/opt/nginx/api.safeu.a2os.club/
+#    environment:
+#      - TZ=Asia/Shanghai
+#    ports:
+#      - "80:80"
+#    networks:
+#      - lbnet
+#    depends_on:
+#      - web1
+#      - web2
+#    restart: on-failure
 
-  web1:
+  safeu1:
     build:
       context: ../..
       dockerfile: ././build/package/safeu-backend/Dockerfile-compose
@@ -30,14 +30,13 @@ services:
       # TODO: This port should not be exposed, remove it after finishing the production test.
       - "8080:8080"
     networks:
-      - lbnet
-      - dbnet
+      - safeu-app-net
     depends_on:
-      - db
-      - redis
+#      - db
+      - safeu-redis
     restart: on-failure
 
-  web2:
+  safeu2:
     build:
       context: ../..
       dockerfile: ././build/package/safeu-backend/Dockerfile-compose
@@ -50,29 +49,28 @@ services:
       # TODO: This port should not be exposed, remove it after finishing the production test.
       - "8081:8080"
     networks:
-      - lbnet
-      - dbnet
+      - safeu-app-net
     depends_on:
-      - db
-      - redis
+#      - db
+      - safeu-redis
     restart: on-failure
 
-  db:
-    environment:
-      - TZ=Asia/Shanghai
-      # TODO: Change a stronger password.
-      - MYSQL_ROOT_PASSWORD=safeu
-      - MYSQL_DATABASE=safeu
-    image: mariadb:10.3
-    volumes:
-      - ../../data/mariadb:/var/lib/mysql
-      - ../../conf/mariadb:/etc/mysql/conf.d
-    ports:
-      - "3306:3306"
-    networks:
-      - dbnet
-    restart: on-failure
-  redis:
+#  db:
+#    environment:
+#      - TZ=Asia/Shanghai
+#      # TODO: Change a stronger password.
+#      - MYSQL_ROOT_PASSWORD=safeu
+#      - MYSQL_DATABASE=safeu
+#    image: mariadb:10.3
+#    volumes:
+#      - ../../data/mariadb:/var/lib/mysql
+#      - ../../conf/mariadb:/etc/mysql/conf.d
+#    ports:
+#      - "3306:3306"
+#    networks:
+#      - dbnet
+#    restart: on-failure
+  safeu-redis:
     image: redis:5.0.3-alpine
     environment:
       - TZ=Asia/Shanghai
@@ -83,9 +81,8 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - dbnet
+      - safeu-app-net
     restart: on-failure
 
 networks:
-  lbnet:
-  dbnet:
+  safeu-app-net:
