@@ -25,7 +25,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     ports:
-      - "8080:8080"
+      - "9000:8080"
     networks:
       - safeu-app-net
     depends_on:
@@ -38,12 +38,13 @@ services:
 #      - TZ=Asia/Shanghai
 #      - MYSQL_ROOT_PASSWORD=safeu
 #      - MYSQL_DATABASE=safeu
-#    image: mysql:5.7.23
+##    image: mysql:5.7.23
+#    image: mariadb:10.3
 #    volumes:
 #      - ../../data-dev/mariadb:/var/lib/mysql
 #      - ../../conf/mariadb:/etc/mysql/conf.d
-#    ports:
-#      - "3306:3306"
+##    ports:
+##      - "3306:3306"
 #    networks:
 #      - safeu-app-net
 #    restart: on-failure

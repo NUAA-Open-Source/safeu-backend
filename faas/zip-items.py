@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # Code for Python 2.7
 
 import os
@@ -26,7 +27,7 @@ def handler(environ, start_response):
     except(ValueError):
         request_body_size = 0
     request_body = environ['wsgi.input'].read(request_body_size)
-    request_body = urllib.unquote(request_body).decode('utf8') 
+    request_body = urllib.unquote(request_body).decode('utf8')
 
     # get request method
     request_method = environ['REQUEST_METHOD']
@@ -125,5 +126,6 @@ def make_zip(source_dir, output_filename):
         for filename in filenames:
             pathfile = os.path.join(parent, filename)
             arcname = pathfile[pre_len:].strip(os.path.sep)
-            zipf.write(pathfile, arcname)
+            zipf.write(pathfile, arcname.encode("utf-8"))
+            # zipf.write(pathfile, arcname.encode("gbk")) # for Windows(Chinese characters)
     zipf.close()
