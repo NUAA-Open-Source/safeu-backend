@@ -1,8 +1,8 @@
 {
   "Master": {
-    "User": "root",
-    "Pass": "safeu",
-    "Host": "db",
+    "User": "your_db_username",
+    "Pass": "your_db_password",
+    "Host": "your_db_ip_address",
     "Port": "3306",
     "Database": "safeu",
     "MaxIdleConns": 30,
@@ -10,7 +10,7 @@
     "Debug": false
   },
   "Redis": {
-    "Host": "redis",
+    "Host": "safeu-redis",
     "Port": "6379",
     "Pass": ""
   }
