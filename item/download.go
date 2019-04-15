@@ -12,7 +12,7 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/json"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 type PackRequest struct {
@@ -197,7 +197,7 @@ func DownloadItems(c *gin.Context) {
 			})
 			return
 		}
-		log.Println(c.ClientIP(), " Get the zip file signed url: ", url)
+		log.Println(c.ClientIP(), " Get the single file signed url: ", url)
 		c.JSON(http.StatusOK, gin.H{
 			"url": url,
 		})
