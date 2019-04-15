@@ -1,0 +1,66 @@
+version: '3'
+services:
+#  nginx:
+#    image: nginx
+#    volumes:
+#      - ../../conf/nginx/nginx.dev.conf:/etc/nginx/nginx.conf
+#      - ../../conf/nginx/testapi.safeu.a2os.club:/etc/nginx/sites-enabled/testapi.safeu.a2os.club
+#      - /etc/letsencrypt/live/testapi.safeu.a2os.club:/opt/nginx/testapi.safeu.a2os.club/
+#    environment:res
+#      - TZ=Asia/Shanghai
+#    ports:
+#      - "80:80"
+#    networks:
+#      - webnet
+#    depends_on:
+#      - web
+#    restart: on-failure
+  safeu:
+    build:
+      context: ../..
+      dockerfile: ././build/package/safeu-backend-dev/Dockerfile-compose
+    volumes:
+      - ../../log/web:/go/src/a2os/safeu-backend/log/
+      # - ../..:/go/src/a2os/safeu-backend/
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - "8080:8080"
+    networks:
+      - safeu-app-net
+    depends_on:
+#      - db
+      - safeu-redis
+    restart: always
+
+#  db:
+#    environment:
+#      - TZ=Asia/Shanghai
+#      - MYSQL_ROOT_PASSWORD=safeu
+#      - MYSQL_DATABASE=safeu
+#    image: mysql:5.7.23
+#    volumes:
+#      - ../../data-dev/mariadb:/var/lib/mysql
+#      - ../../conf/mariadb:/etc/mysql/conf.d
+#    ports:
+#      - "3306:3306"
+#    networks:
+#      - safeu-app-net
+#    restart: on-failure
+    
+  safeu-redis:
+    image: redis:5.0.3-alpine
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ../../conf/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ../../data-dev/redis:/data # for redis persistent storage
+    entrypoint: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    networks:
+      - safeu-app-net
+    restart: on-failure
+
+networks:
+  safeu-app-net:

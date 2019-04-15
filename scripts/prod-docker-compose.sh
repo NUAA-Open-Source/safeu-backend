@@ -7,23 +7,23 @@ echo -e "\n Build, up, down, restart, pull, check logs for SafeU production dock
 if [ "$1" == "up" ]
 then
     mkdir -p ../data/mariadb
-    sudo docker-compose -f ../deployments/production/docker-compose.yml up -d
+    sudo docker-compose -f ../deployments/prod/docker-compose.yml up -d
 
 elif [ "$1" == "down" ]
 then
-    sudo docker-compose -f ../deployments/production/docker-compose.yml down
+    sudo docker-compose -f ../deployments/prod/docker-compose.yml down
 
 elif [ "$1" == "build" ]
 then
-    sudo docker-compose -f ../deployments/production/docker-compose.yml build --force-rm
+    sudo docker-compose -f ../deployments/prod/docker-compose.yml build --force-rm
 
 elif [ "$1" == "restart" ]
 then
-    sudo docker-compose -f ../deployments/production/docker-compose.yml restart -t 10
+    sudo docker-compose -f ../deployments/prod/docker-compose.yml restart -t 10
 
 elif [ "$1" == "pull" ]
 then
-    sudo docker-compose -f ../deployments/production/docker-compose.yml pull
+    sudo docker-compose -f ../deployments/prod/docker-compose.yml pull
 
 elif [ "$1" == "logs" ]
 then
@@ -32,9 +32,9 @@ then
     echo ""
     if [ "$isF" == "y" ] || [ "$isF" == "Y" ]
     then 
-        sudo docker-compose -f ../deployments/production/docker-compose.yml logs -f
+        sudo docker-compose -f ../deployments/prod/docker-compose.yml logs -f
     else
-        sudo docker-compose -f ../deployments/production/docker-compose.yml logs
+        sudo docker-compose -f ../deployments/prod/docker-compose.yml logs
     fi
 
 elif [ "$1" == "help" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]
