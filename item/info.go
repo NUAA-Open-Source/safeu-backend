@@ -29,9 +29,9 @@ func GetItemInfo(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"down_count ": item.DownCount,
-		"expired_at":  item.ExpiredAt,
-		"is_public":   item.IsPublic,
+		"down_count": item.DownCount,
+		"expired_at": item.ExpiredAt,
+		"is_public":  item.IsPublic,
 	})
 	return
 }
