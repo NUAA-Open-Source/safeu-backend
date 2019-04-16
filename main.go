@@ -18,20 +18,30 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"time"
 
 	"a2os/safeu-backend/common"
 	"a2os/safeu-backend/item"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/utrack/gin-csrf"
 )
 
 func Migrate(db *gorm.DB) {
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&item.Item{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&common.Config{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_bin auto_increment=1").AutoMigrate(&item.Token{})
+}
+
+// 系统启动后的任务
+func Tasks() {
+	// 主动删除
+	go item.ActiveDelete(common.GetReCodeRedisClient())
 }
 func init() {
 
@@ -58,6 +68,8 @@ func init() {
 
 	// 初始化阿里云对象存储客户端对象
 	common.InitAliyunOSSClient()
+	// 系统启动后的任务
+	Tasks()
 
 }
 
@@ -76,14 +88,23 @@ func main() {
 	}
 
 	r := gin.Default()
+	// 错误处理
+	r.Use(common.ErrorHandling())
+	r.Use(common.MaintenanceHandling())
 
 	// After init router
+	// CORS
 	if common.DEBUG {
 		r.Use(cors.New(cors.Config{
-			AllowAllOrigins:  true,
+			// The value of the 'Access-Control-Allow-Origin' header in the
+			// response must not be the wildcard '*' when the request's
+			// credentials mode is 'include'.
+			AllowOrigins:     common.CORS_ALLOW_DEBUG_ORIGINS,
 			AllowMethods:     common.CORS_ALLOW_METHODS,
 			AllowHeaders:     common.CORS_ALLOW_HEADERS,
+			ExposeHeaders:    common.CORS_EXPOSE_HEADERS,
 			AllowCredentials: true,
+			AllowWildcard:    true,
 			MaxAge:           12 * time.Hour,
 		}))
 		//r.Use(CORS())
@@ -93,28 +114,60 @@ func main() {
 			AllowOrigins:     common.CORS_ALLOW_ORIGINS,
 			AllowMethods:     common.CORS_ALLOW_METHODS,
 			AllowHeaders:     common.CORS_ALLOW_HEADERS,
+			ExposeHeaders:    common.CORS_EXPOSE_HEADERS,
 			AllowCredentials: true,
 			MaxAge:           12 * time.Hour,
 		}))
 	}
 
+	// CSRF
+	store := cookie.NewStore(common.CSRF_COOKIE_SECRET)
+	r.Use(sessions.Sessions(common.CSRF_SESSION_NAME, store))
+	CSRF := csrf.Middleware(csrf.Options{
+		Secret: common.CSRF_SECRET,
+		ErrorFunc: func(c *gin.Context) {
+			//c.String(http.StatusBadRequest, "CSRF token mismatch")
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err_code": 10007,
+				"message":  common.Errors[10007],
+			})
+			log.Println(c.ClientIP(), "CSRF token mismatch")
+			c.Abort()
+		},
+	})
+
 	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
 
+	r.GET("/csrf", CSRF, func(c *gin.Context) {
+		c.Header("X-CSRF-TOKEN", csrf.GetToken(c))
+		c.String(http.StatusOK, "IN HEADER")
+		log.Println(c.ClientIP(), "response CSRF token", csrf.GetToken(c))
+	})
+
+	// the API without CSRF middleware
 	v1 := r.Group("/v1")
 	{
-		item.UploadRegister(v1.Group("/upload"))
-		v1.POST("/password/:retrieveCode", item.ChangePassword)
-		v1.POST("/recode/:retrieveCode", item.ChangeRecode)
-		v1.POST("/delete/:retrieveCode", item.DeleteManual)
-		v1.GET("/downCount/:retrieveCode", item.DownloadCount)
-		v1.POST("/downCount/:retrieveCode", item.ChangeDownCount)
-		v1.POST("/expireTime/:retrieveCode", item.ChangeExpireTime)
-		v1.POST("/item/:retrieveCode", item.DownloadItems)
-		v1.POST("/validation/:retrieveCode", item.Validation)
+		v1.POST("/upload/callback", item.UploadCallBack) //回调
+	}
+
+	// the API with CSRF middleware
+	v1_csrf := r.Group("/v1", CSRF)
+	{
+		v1_csrf.GET("/upload/policy", item.GetPolicyToken) //鉴权
+		v1_csrf.POST("/upload/finish", item.FinishUpload)  //结束
+		v1_csrf.POST("/password/:retrieveCode", item.ChangePassword)
+		v1_csrf.POST("/recode/:retrieveCode", item.ChangeRecode)
+		v1_csrf.POST("/delete/:retrieveCode", item.DeleteManual)
+		v1_csrf.POST("/info/:retrieveCode", item.GetItemInfo)
+		v1_csrf.POST("/minusDownCount/:retrieveCode", item.MinusDownloadCount)
+		v1_csrf.POST("/downCount/:retrieveCode", item.ChangeDownCount)
+		v1_csrf.POST("/expireTime/:retrieveCode", item.ChangeExpireTime)
+		v1_csrf.POST("/item/:retrieveCode", item.DownloadItems)
+		v1_csrf.POST("/validation/:retrieveCode", item.Validation)
 	}
 
 	r.Run(":" + common.PORT) // listen and serve on 0.0.0.0:PORT

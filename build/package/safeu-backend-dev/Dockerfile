@@ -5,12 +5,17 @@ MAINTAINER TripleZ "me@triplez.cn"
 WORKDIR $GOPATH/src/a2os/safeu-backend
 ADD . $GOPATH/src/a2os/safeu-backend/
 
-# Add timezone package
-RUN apt-get update ;\
-    apt-get install -y tzdata
+# Solution for Chinese special network enviornment 
+# RUN mkdir -p $GOPATH/src/golang.org/x/ && \
+#     git clone https://github.com/golang/sys.git $GOPATH/src/golang.org/x/sys/
+RUN mkdir -p $GOPATH/src/golang.org/x/ && \
+    git clone https://gitee.com/Triple-Z/golang-sys.git $GOPATH/src/golang.org/x/sys/
 
 # Add dependencies
-RUN go get -u github.com/kardianos/govendor && go get github.com/pilu/fresh && govendor sync
+# RUN go get -u github.com/kardianos/govendor && go get github.com/pilu/fresh && govendor sync
+
+# Add fresh package
+RUN go get github.com/pilu/fresh
 
 # Build package
 RUN go build .

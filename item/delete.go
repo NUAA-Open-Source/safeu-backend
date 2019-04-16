@@ -7,23 +7,46 @@ import (
 	"sync"
 
 	"a2os/safeu-backend/common"
-	"github.com/gin-gonic/gin"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 )
 
-type DelateItemBody struct {
+type DeleteItemBody struct {
 	UserToken string `json:"user_token"`
 }
 
+// 过期文件主动删除
+func ActiveDelete(client *redis.Client) {
+	log.Println("ActiveDelete is Running........")
+	pubsub := client.Subscribe(fmt.Sprintf("__keyevent@%d__:expired", common.RECODE))
+	_, err := pubsub.Receive()
+	if err != nil {
+		panic(err)
+	}
+	db := common.GetDB()
+	ch := pubsub.Channel()
+	for msg := range ch {
+		reCode := msg.Payload[len(common.SHADOWKEYPREFIX):]
+		var itemList []Item
+		db.Where("re_code = ? ", reCode).Find(&itemList)
+		for _, item := range itemList {
+			db.Delete(item)
+		}
+		go DeleteItems(itemList)
+		common.DeleteRedisRecodeFromRecode(reCode)
+	}
+}
 func DeleteManual(c *gin.Context) {
 	retrieveCode := c.Param("retrieveCode")
-	var deleteItemBody DelateItemBody
+	var deleteItemBody DeleteItemBody
 	err := c.BindJSON(&deleteItemBody)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 10003,
+			"message":  common.Errors[10003],
 		})
 		return
 	}
@@ -31,7 +54,8 @@ func DeleteManual(c *gin.Context) {
 	reCodeRedisClient := common.GetReCodeRedisClient()
 	if deleteItemBody.UserToken != reCodeRedisClient.Get(retrieveCode).Val() {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "this reCode mismatch auth",
+			"err_code": 20306,
+			"message":  common.Errors[20306],
 		})
 		return
 	}

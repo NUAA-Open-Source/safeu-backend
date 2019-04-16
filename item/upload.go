@@ -24,7 +24,7 @@ import (
 	"a2os/safeu-backend/common"
 
 	"github.com/gin-gonic/gin"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 // 用户上传文件时指定的前缀。
@@ -68,7 +68,7 @@ func get_policy_token() string {
 	expire_end := now + expire_time
 	var tokenExpire = get_gmt_iso8601(expire_end)
 	//upload_dir
-	upload_dir := "items/" + time.Now().Format("2006-01-02 15:04:05.00") + "/"
+	upload_dir := "items/" + uuid.Must(uuid.NewV4()).String() + "/"
 	//create post policy json
 	var config ConfigStruct
 	config.Expiration = tokenExpire
@@ -428,12 +428,6 @@ type FinishedFiles struct {
 	Files []uuid.UUID `json:"files"`
 }
 
-func UploadRegister(router *gin.RouterGroup) {
-	router.GET("/policy", GetPolicyToken)    //鉴权
-	router.POST("/callback", UploadCallBack) //回调
-	router.POST("/finish", FinishUpload)     //结束
-}
-
 func GetPolicyToken(c *gin.Context) {
 	response := get_policy_token()
 	c.String(http.StatusOK, response)
@@ -446,14 +440,16 @@ func FinishUpload(c *gin.Context) {
 	err := c.BindJSON(&finishedFiles)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err_code": 10003,
+			"message":  common.Errors[10003],
 		})
 		return
 	}
 	if finishedFiles.Files == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Parameter error",
+			"err_code": 10004,
+			"message":  common.Errors[10004],
 		})
 		return
 	}
@@ -473,7 +469,6 @@ func FinishUpload(c *gin.Context) {
 	reCode := common.RandStringBytesMaskImprSrc(common.ReCodeLength)
 	var files []string
 	for _, value := range finishedFiles.Files {
-		fmt.Println(value)
 		files = append(files, value.String())
 		db.Model(&Item{}).Where("name = ? AND status = ?", value, common.UPLOAD_BEGIN).Update(map[string]interface{}{"re_code": reCode, "status": common.UPLOAD_FINISHED})
 	}
@@ -482,7 +477,15 @@ func FinishUpload(c *gin.Context) {
 	// 将提取码推入Redis
 	reCodeRedisClient := common.GetReCodeRedisClient()
 	redisExpireTime, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
-	reCodeRedisClient.Set(reCode, owner, redisExpireTime)
+	//reCodeRedisClient.Set(reCode, owner, redisExpireTime)
+	err = common.SetShadowKeyInRedis(reCode, owner, redisExpireTime, reCodeRedisClient)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"err_code": 10001,
+			"message":  common.Errors[10001],
+		})
+		return
+	}
 	// 将用户识别码推入Redis
 	tokenRedisClient := common.GetUserTokenRedisClient()
 	tokenRedisClient.SAdd(owner, files)
@@ -512,7 +515,8 @@ func UploadCallBack(c *gin.Context) {
 	bytePublicKey, err := getPublicKey(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err,
+			"err_code": 20000,
+			"message":  err,
 		})
 		return
 	}
@@ -520,7 +524,8 @@ func UploadCallBack(c *gin.Context) {
 	byteAuthorization, err := getAuthorization(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err,
+			"err_code": 20000,
+			"message":  err,
 		})
 		return
 	}
@@ -529,7 +534,8 @@ func UploadCallBack(c *gin.Context) {
 	byteMD5, err := getMD5FromNewAuthString(r)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err,
+			"err_code": 20000,
+			"message":  err,
 		})
 		return
 	}
@@ -546,7 +552,8 @@ func UploadCallBack(c *gin.Context) {
 	} else {
 		log.Println("Fail")
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err,
+			"err_code": 20000,
+			"message":  err,
 		})
 		return
 	}
@@ -559,8 +566,8 @@ func BuildItemFromCallBack(info FileInfo) *Item {
 	h, _ := time.ParseDuration(common.FILE_DEFAULT_EXIST_TIME)
 	item.Status = common.UPLOAD_BEGIN
 	item.Name = uuid.Must(uuid.NewV4()).String()
-	// 目前的目录格式为: items/2019-02-23 09:43:27.63/your_file_name，因此第 29 个字符开始才是文件原名
-	item.OriginalName = info.Object[29:] // 截取时间戳后的文件名称
+	// 目前的目录格式为: items/uuid/your_file_name，因此第 43 个字符开始才是文件原名
+	item.OriginalName = info.Object[43:] // 截取时间戳后的文件名称
 	item.Host = host
 	item.DownCount = common.FILE_DEFAULT_DOWNCOUNT
 	item.Type = info.MimeType

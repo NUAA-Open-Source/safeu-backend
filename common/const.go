@@ -3,8 +3,9 @@ package common
 var CloudConfig *CloudConfiguration
 
 const (
-	DEBUG bool   = false
-	PORT  string = "8080"
+	DEBUG       = true
+	MAINTENANCE = false
+	PORT        = "8080"
 )
 
 const (
@@ -15,6 +16,7 @@ const (
 	ReCodeLength          = 4
 	UserTokenLength       = 32
 	MYSQLTIMEZONE         = "Asia%2FShanghai"
+	SHADOWKEYPREFIX       = "shadowKey:"
 )
 
 // 文件状态码
@@ -53,6 +55,9 @@ const (
 	TOKEN_VALID_MINUTES int32 = 15 // Token 有效时长
 )
 
+// 数据库连接失败重试间隔
+const DB_CONNECT_FAIL_RETRY_INTERVAL = 20
+
 // RedisDB
 const (
 	USER_TOKEN = iota // 0
@@ -68,11 +73,18 @@ var CORS_ALLOW_ORIGINS = []string{
 	"http://test.safeu.a2os.club",
 }
 
+var CORS_ALLOW_DEBUG_ORIGINS = []string{
+	"http://*",
+	"https://*",
+}
+
 var CORS_ALLOW_HEADERS = []string{
 	"Origin",
 	"Content-Length",
 	"Content-Type",
 	"Token",
+	"X-CSRF-TOKEN",
+	"withCredentials",
 }
 
 var CORS_ALLOW_METHODS = []string{
@@ -83,3 +95,18 @@ var CORS_ALLOW_METHODS = []string{
 	"DELETE",
 	"HEAD",
 }
+
+var CORS_EXPOSE_HEADERS = []string{
+	"X-CSRF-TOKEN",
+	"Token",
+}
+
+var CSRF_COOKIE_SECRET = []byte("csrf-secret")
+
+const (
+	CSRF_SESSION_NAME string = "safeu-session"
+	CSRF_SECRET       string = "safeu-secret"
+)
+
+// OSS 下载请求所包含的 Content-Type 值，用于 URL 签名
+var OSS_DOWNLOAD_CONTENT_TYPE = ""
