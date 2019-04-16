@@ -2,9 +2,6 @@ FROM golang:1.9.7
 
 MAINTAINER TripleZ "me@triplez.cn"
 
-WORKDIR $GOPATH/src/a2os/safeu-backend
-ADD . $GOPATH/src/a2os/safeu-backend/
-
 # COPY conf/db.example.json $GOPATH/src/a2os/safeu-backend/conf/db.json
 
 # Solution for Chinese special network enviornment 
@@ -15,6 +12,9 @@ RUN mkdir -p $GOPATH/src/golang.org/x/ && \
 
 # Add dependencies
 RUN go get github.com/pilu/fresh
+
+WORKDIR $GOPATH/src/a2os/safeu-backend
+ADD . $GOPATH/src/a2os/safeu-backend/
 
 # Build package
 RUN go build -o safeu-backend-dev .
