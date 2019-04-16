@@ -27,12 +27,10 @@ services:
     environment:
       - TZ=Asia/Shanghai
     ports:
-      # TODO: This port should not be exposed, remove it after finishing the production test.
       - "8080:8080"
     networks:
       - safeu-app-net
     depends_on:
-#      - db
       - safeu-redis
     restart: on-failure
 
@@ -46,19 +44,33 @@ services:
     environment:
       - TZ=Asia/Shanghai
     ports:
-      # TODO: This port should not be exposed, remove it after finishing the production test.
       - "8081:8080"
     networks:
       - safeu-app-net
     depends_on:
-#      - db
+      - safeu-redis
+    restart: on-failure
+
+  safeu3:
+    build:
+      context: ../..
+      dockerfile: ././build/package/safeu-backend/Dockerfile-compose
+    volumes:
+      - ../../log/web2:/go/src/a2os/safeu-backend/log/
+      # - ../..:/go/src/a2os/safeu-backend/
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - "8082:8080"
+    networks:
+      - safeu-app-net
+    depends_on:
       - safeu-redis
     restart: on-failure
 
 #  db:
 #    environment:
 #      - TZ=Asia/Shanghai
-#      # TODO: Change a stronger password.
 #      - MYSQL_ROOT_PASSWORD=safeu
 #      - MYSQL_DATABASE=safeu
 #    image: mariadb:10.3
