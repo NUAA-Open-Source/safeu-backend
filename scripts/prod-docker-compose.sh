@@ -6,7 +6,7 @@ echo -e "\n Build, up, down, restart, pull, check logs for SafeU production dock
 
 if [ "$1" == "up" ]
 then
-    mkdir -p ../data/mariadb
+    mkdir -p ../data
     sudo docker-compose -f ../deployments/prod-safeu/docker-compose.yml up -d
 
 elif [ "$1" == "down" ]
@@ -50,7 +50,7 @@ then
    logs       View output from prod containers
    pull       Pull SafeU prod container images
    restart    Restart SafeU prod containers
-   up         Up SafeU prod containers with force recreate and build
+   up         Up SafeU prod containers
    "
 
 else
