@@ -384,6 +384,9 @@ func GetSignURL(itemBucket string, itemPath string, client *oss.Client) (string,
 		log.Println(fmt.Sprintf("Func: GetSignURL Get Bucket %s Object %s Failed %s", itemBucket, itemPath, err.Error()))
 		return "", err
 	}
-	log.Println("signed url: ", signedURL)
-	return signedURL, nil
+
+	// TODO: 优雅一点……这个太暴力了
+	signedHttpsURL := "https" + signedURL[4:]
+	log.Println("signed url: ", signedHttpsURL)
+	return signedHttpsURL, nil
 }

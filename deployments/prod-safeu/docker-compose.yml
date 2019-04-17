@@ -22,7 +22,7 @@ services:
       context: ../..
       dockerfile: ././build/package/safeu-backend/Dockerfile-compose
     volumes:
-      - ../../log/web1:/go/src/a2os/safeu-backend/log/
+      - ../../log/safeu1:/go/src/a2os/safeu-backend/log
       # - ../..:/go/src/a2os/safeu-backend/
     environment:
       - TZ=Asia/Shanghai
@@ -39,7 +39,7 @@ services:
       context: ../..
       dockerfile: ././build/package/safeu-backend/Dockerfile-compose
     volumes:
-      - ../../log/web2:/go/src/a2os/safeu-backend/log/
+      - ../../log/safeu2:/go/src/a2os/safeu-backend/log
       # - ../..:/go/src/a2os/safeu-backend/
     environment:
       - TZ=Asia/Shanghai
@@ -56,7 +56,7 @@ services:
       context: ../..
       dockerfile: ././build/package/safeu-backend/Dockerfile-compose
     volumes:
-      - ../../log/web2:/go/src/a2os/safeu-backend/log/
+      - ../../log/safeu3:/go/src/a2os/safeu-backend/log
       # - ../..:/go/src/a2os/safeu-backend/
     environment:
       - TZ=Asia/Shanghai

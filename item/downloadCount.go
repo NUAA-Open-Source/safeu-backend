@@ -77,7 +77,7 @@ func MinusDownloadCount(c *gin.Context) {
 
 		// 下载次数--
 		singleItem.DownCount -= 1
-		if singleItem.DownCount <= 0 {
+		if singleItem.DownCount < 0 {
 			// 删除文件
 			err := DeleteItem(singleItem.Bucket, singleItem.Path)
 			if err != nil {
