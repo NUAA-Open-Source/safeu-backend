@@ -453,10 +453,13 @@ func FinishUpload(c *gin.Context) {
 		})
 		return
 	}
-
+	log.Println("finish_function_debug","finished files:",finishedFiles.Files)
 	// 数据库中存在满足uuid且状态为"上传完成"，返回原来生成的提取码
 	var item Item
-	if !db.Where("name = ? AND status = ?", finishedFiles.Files[0], common.UPLOAD_FINISHED).First(&item).RecordNotFound() {
+	queryResult := db.Debug().Where("name = ? AND status = ?", finishedFiles.Files[0], common.UPLOAD_FINISHED).First(&item)
+	log.Println("finish_function_debug","first function err:",queryResult.Error)
+	if !queryResult.RecordNotFound() {
+		fmt.Println("finish_function_debug ","in condition")
 		reCodeRedisClient := common.GetReCodeRedisClient()
 		owner, _ := reCodeRedisClient.Get(item.ReCode).Result()
 		c.JSON(http.StatusOK, gin.H{
@@ -489,6 +492,7 @@ func FinishUpload(c *gin.Context) {
 	// 将用户识别码推入Redis
 	tokenRedisClient := common.GetUserTokenRedisClient()
 	tokenRedisClient.SAdd(owner, files)
+	fmt.Println("Finish upload ReCode:",reCode)
 	c.JSON(http.StatusOK, gin.H{
 		"recode": reCode,
 		"owner":  owner,
