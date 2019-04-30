@@ -13,15 +13,15 @@ import (
 )
 
 type Db struct {
-	User         string
-	Pass         string
-	Host         string
-	Port         string
-	Database     string
-	MaxIdleConns int
-	MaxOpenConns int
+	User            string
+	Pass            string
+	Host            string
+	Port            string
+	Database        string
+	MaxIdleConns    int
+	MaxOpenConns    int
 	ConnMaxLifetime int
-	Debug        bool
+	Debug           bool
 }
 
 type RedisDb struct {
@@ -77,8 +77,9 @@ func InitDB() *gorm.DB {
 
 	log.Println("Connected to database ", DBConf.Master.User, " ", DBConf.Master.Pass, " ", DBConf.Master.Host, ":", DBConf.Master.Port, " ", DBConf.Master.Database)
 	db.DB().SetMaxIdleConns(DBConf.Master.MaxIdleConns)
-	db.DB().SetConnMaxLifetime(time.Duration(DBConf.Master.ConnMaxLifetime)*time.Second)
+	db.DB().SetConnMaxLifetime(time.Duration(DBConf.Master.ConnMaxLifetime) * time.Second)
 	DB = db
+	DB.LogMode(true)
 	return DB
 }
 
