@@ -55,6 +55,7 @@
     "Database": "safeu",
     "MaxIdleConns": 30,
     "MaxOpenConns": 100,
+    "ConnMaxLifetime": 3600,
     "Debug": false
   },
   "Redis": {
