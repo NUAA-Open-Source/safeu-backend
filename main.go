@@ -29,7 +29,7 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/utrack/gin-csrf"
+	csrf "github.com/utrack/gin-csrf"
 )
 
 func Migrate(db *gorm.DB) {
@@ -85,6 +85,7 @@ func main() {
 		logFile := common.GetLogFile()
 		defer logFile.Close()
 		gin.DefaultWriter = io.MultiWriter(logFile)
+		common.GetDB().SetLogger(log.New(logFile, "\r\n", 0))
 	}
 
 	r := gin.Default()
