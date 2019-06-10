@@ -22,6 +22,7 @@ helpMsg() {
 if [ "$2" != "" ]
 then
     # update code
+    git stash  # stash the current modification
     git checkout $2
     git pull origin $2
 else
