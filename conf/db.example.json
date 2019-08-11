@@ -3,7 +3,7 @@
     "User": "your_db_username",
     "Pass": "your_db_password",
     "Host": "your_db_ip_address",
-    "Port": "3306",
+    "Port": "your_db_port",
     "Database": "safeu",
     "MaxIdleConns": 30,
     "MaxOpenConns": 100,
@@ -11,8 +11,8 @@
     "Debug": false
   },
   "Redis": {
-    "Host": "safeu-redis",
-    "Port": "6379",
-    "Pass": ""
+    "Host": "your_redis_ip_address",
+    "Port": "your_redis_port",
+    "Pass": "your_redis_password"
   }
 }
