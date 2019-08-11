@@ -30,8 +30,8 @@ services:
       - "8080:8080"
     networks:
       - safeu-app-net
-    depends_on:
-      - safeu-redis
+    # depends_on:
+    #   - safeu-redis
     restart: on-failure
 
   safeu2:
@@ -47,8 +47,8 @@ services:
       - "8081:8080"
     networks:
       - safeu-app-net
-    depends_on:
-      - safeu-redis
+    # depends_on:
+    #   - safeu-redis
     restart: on-failure
 
   safeu3:
@@ -64,8 +64,8 @@ services:
       - "8082:8080"
     networks:
       - safeu-app-net
-    depends_on:
-      - safeu-redis
+    # depends_on:
+    #   - safeu-redis
     restart: on-failure
 
 #  db:
@@ -82,19 +82,19 @@ services:
 #    networks:
 #      - dbnet
 #    restart: on-failure
-  safeu-redis:
-    image: redis:5.0.3-alpine
-    environment:
-      - TZ=Asia/Shanghai
-    volumes:
-      - ../../conf/redis/redis.conf:/usr/local/etc/redis/redis.conf
-      - ../../data/redis:/data # for redis persistent storage
-    entrypoint: redis-server /usr/local/etc/redis/redis.conf
-    ports:
-      - "6379:6379"
-    networks:
-      - safeu-app-net
-    restart: on-failure
+  # safeu-redis:
+  #   image: redis:5.0.3-alpine
+  #   environment:
+  #     - TZ=Asia/Shanghai
+  #   volumes:
+  #     - ../../conf/redis/redis.conf:/usr/local/etc/redis/redis.conf
+  #     - ../../data/redis:/data # for redis persistent storage
+  #   entrypoint: redis-server /usr/local/etc/redis/redis.conf
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - safeu-app-net
+  #   restart: on-failure
 
 networks:
   safeu-app-net:

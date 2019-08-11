@@ -23,8 +23,9 @@ if [ "$2" != "" ]
 then
     # update code
     git stash  # stash the current modification
+    # git pull # default pull to update branches
+    git fetch origin $2
     git checkout $2
-    git pull origin $2
 else
     echo -e "\n [ERROR] Unrecognized branch name!\n"
     helpMsg
