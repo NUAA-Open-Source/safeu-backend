@@ -121,7 +121,7 @@ Cross-site Request Forgery 跨域请求伪造防护设计。
 ### Build from Source
 
 ```bash
-$ git clone https://github.com/Triple-Z/safeu-backend.git
+$ git clone https://github.com/NUAA-Open-Source/safeu-backend.git
 $ cd safeu-backend/
 $ go get -u github.com/kardianos/govendor
 $ govendor sync
@@ -129,6 +129,15 @@ $ go run main.go
 ```
 
 > 要事先做好数据库的建立和配置。
+
+2019.9.1 Update: 支持了 `gomod` 作为依赖管理，可以直接使用 `go build` 直接构建：
+
+```bash
+$ git clone https://github.com/NUAA-Open-Source/safeu-backend.git
+$ cd safeu-backend/
+$ go build
+$ ./safeu-backend
+```
 
 ### Run via Docker
 
@@ -207,15 +216,19 @@ $ ./prod-docker-compose.sh up
 
 ## Code of Conducts
 
+TBD.
+
 ## API Documentation
 
 API 文档位于 `api/` 文件夹下，采用 [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) 标准编写。
-
+size
 Online Documentation: https://app.swaggerhub.com/apis-docs/a2os/safeu
 
 > 更多信息见 [SafeU 内部文档](https://docs.google.com/document/d/1UiFHogsqDSqw3SrEAnEMukOoJq3fyxqIIEP-OE7ask0/edit?ts=5c56f70d) **需要权限**。
 
 ## Development Workflow
+
+TBD.
 
 ## License
 
@@ -236,3 +249,4 @@ Online Documentation: https://app.swaggerhub.com/apis-docs/a2os/safeu
    See the License for the specific language governing permissions and
    limitations under the License.
 ```
+$ ./dev-docker-compose.sh up
