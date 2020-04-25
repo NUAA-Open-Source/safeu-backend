@@ -162,5 +162,6 @@ var Errors = map[int]string{
 	20306: "The retrieve code mismatch auth",
 	20307: "The retrieve code repeat",
 
-	20501: "Incorrect password",
+	20501: "Password incorrect",
+	20502: "Password required",
 }

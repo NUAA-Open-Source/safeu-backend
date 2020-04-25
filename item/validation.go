@@ -105,14 +105,22 @@ func Validation(c *gin.Context) {
 	// 验证密码
 	// 密码加密方式：SHA256( retrieveCode, SHA256(password) )
 	var valiPass ValiPass
-	if err := c.ShouldBindJSON(&valiPass); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"err_code": 10005,
-			"message":  common.Errors[10005],
-		})
-		log.Println(c.ClientIP(), " Cannot get the password from client, return 401 Unauthorized")
-		return
-	}
+	//if err := c.ShouldBindJSON(&valiPass); err != nil {
+	//	c.JSON(http.StatusUnauthorized, gin.H{
+	//		"err_code": 10005,
+	//		"message":  common.Errors[10005],
+	//	})
+	//	log.Println(c.ClientIP(), " Cannot get the password from client, return 401 Unauthorized")
+	//	return
+	//}
+
+	common.FuncHandler(c,
+		c.ShouldBindJSON(&valiPass),
+		nil,
+		http.StatusUnauthorized,
+		20502,
+		fmt.Sprintf(c.ClientIP(), " Cannot get the password from client, return 401 Unauthorized"),
+	)
 
 	SHA256Password := valiPass.Password
 	refPassword := curItem.Password

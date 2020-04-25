@@ -60,4 +60,5 @@
 
 | Error Code | Error Message (en) | Error Message (zh) |
 | :----: | :----: | :----: |
-| 20501 | Incorrect password | 密码错误 |
+| 20501 | Password incorrect | 密码错误 |
+| 20502 | Password required | 需要密码 |

@@ -13,14 +13,15 @@ import (
 )
 
 type Db struct {
-	User         string
-	Pass         string
-	Host         string
-	Port         string
-	Database     string
-	MaxIdleConns int
-	MaxOpenConns int
-	Debug        bool
+	User            string
+	Pass            string
+	Host            string
+	Port            string
+	Database        string
+	MaxIdleConns    int
+	MaxOpenConns    int
+	ConnMaxLifetime int
+	Debug           bool
 }
 
 type RedisDb struct {
@@ -66,7 +67,7 @@ func InitDB() *gorm.DB {
 		db *gorm.DB
 		e  error
 	)
-	connectString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&collation=utf8mb4_bin&parseTime=True&loc=%s", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Host, DBConf.Master.Port, DBConf.Master.Database, MYSQLTIMEZONE)
+	connectString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&collation=utf8mb4_bin&parseTime=True&loc=%s&timeout=10s", DBConf.Master.User, DBConf.Master.Pass, DBConf.Master.Host, DBConf.Master.Port, DBConf.Master.Database, MYSQLTIMEZONE)
 	// 重试连接
 	for db, e = gorm.Open("mysql", connectString); e != nil; {
 		fmt.Println("Gorm Open DB Err: ", e)
@@ -76,11 +77,19 @@ func InitDB() *gorm.DB {
 
 	log.Println("Connected to database ", DBConf.Master.User, " ", DBConf.Master.Pass, " ", DBConf.Master.Host, ":", DBConf.Master.Port, " ", DBConf.Master.Database)
 	db.DB().SetMaxIdleConns(DBConf.Master.MaxIdleConns)
+	db.DB().SetMaxOpenConns(DBConf.Master.MaxOpenConns)
+	db.DB().SetConnMaxLifetime(time.Duration(DBConf.Master.ConnMaxLifetime) * time.Second)
 	DB = db
+	DB.LogMode(true)
 	return DB
 }
 
 func GetDB() *gorm.DB {
+	// Ping
+	err := DB.DB().Ping()
+	if err != nil {
+		log.Println("Cannot access the database (PING FAILED)")
+	}
 	return DB
 }
 

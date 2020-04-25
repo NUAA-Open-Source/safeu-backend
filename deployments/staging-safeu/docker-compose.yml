@@ -27,7 +27,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     ports:
-      - "8080:8080"
+      - "8090:8080"
     networks:
       - safeu-app-net
     # depends_on:
@@ -44,7 +44,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     ports:
-      - "8081:8080"
+      - "8091:8080"
     networks:
       - safeu-app-net
     # depends_on:
@@ -61,7 +61,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     ports:
-      - "8082:8080"
+      - "8092:8080"
     networks:
       - safeu-app-net
     # depends_on:
@@ -90,8 +90,9 @@ services:
   #     - ../../conf/redis/redis.conf:/usr/local/etc/redis/redis.conf
   #     - ../../data/redis:/data # for redis persistent storage
   #   entrypoint: redis-server /usr/local/etc/redis/redis.conf
-  #   ports:
-  #     - "6379:6379"
+  #   # no reveal for ports, waiting for the database instance
+  #   # ports:
+  #   #   - "6379:6379"
   #   networks:
   #     - safeu-app-net
   #   restart: on-failure
