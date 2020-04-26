@@ -1,6 +1,6 @@
 # SafeU Backend
 
-伏羲后端仓库。
+SafeU 后端仓库。
 
 > README for developers.
 
@@ -249,4 +249,3 @@ TBD.
    See the License for the specific language governing permissions and
    limitations under the License.
 ```
-$ ./dev-docker-compose.sh up
