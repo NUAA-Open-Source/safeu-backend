@@ -29,6 +29,7 @@ func ActiveDelete(client *redis.Client) {
 	ch := pubsub.Channel()
 	for msg := range ch {
 		reCode := msg.Payload[len(common.SHADOWKEYPREFIX):]
+		log.Println("ActiveDelete get ReCode:" + reCode)
 		var itemList []Item
 		db.Where("re_code = ? ", reCode).Find(&itemList)
 		for _, item := range itemList {

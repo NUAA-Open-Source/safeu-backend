@@ -70,9 +70,21 @@ func ChangeExpireTime(c *gin.Context) {
 	var item Item
 	db.Where("name = ? AND status = ? AND re_code = ?", files[0], common.UPLOAD_FINISHED, retrieveCode).First(&item)
 	h, _ := time.ParseDuration("1h")
-	newTime := item.CreatedAt.Add(time.Duration(changeExpireTimeBody.NewExpireTime) * h)
+	expireDuration := time.Duration(changeExpireTimeBody.NewExpireTime) * h
+	newTime := item.CreatedAt.Add(expireDuration)
 	for _, value := range files {
 		db.Model(&Item{}).Where("name = ? AND status = ? AND re_code = ?", value, common.UPLOAD_FINISHED, retrieveCode).Update(map[string]interface{}{"expired_at": newTime})
+	}
+	// 修改 ShadowKey 过期时间
+	reCodeRedisClient := common.GetReCodeRedisClient()
+	err = common.ReplaceShadowKeyInRedis(retrieveCode, expireDuration, reCodeRedisClient)
+	if err != nil {
+		log.Println("ChangeExpireTime Recode", retrieveCode, "timeAdd")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"err_code": 10001,
+			"message":  common.Errors[10001],
+		})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": newTime,
@@ -216,13 +228,30 @@ func ChangeRecode(c *gin.Context) {
 		db.Model(&Item{}).Where("name = ? AND status = ? AND re_code = ?", value, common.UPLOAD_FINISHED, retrieveCode).Update(map[string]interface{}{"re_code": changeRecodeBody.NewReCode, "password": hasherSum, "is_public": false})
 	}
 	log.Println("Success Change ReCode With New Password", "Previous Recode", retrieveCode, "Now Recode", changeRecodeBody.NewReCode)
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	// rename redis recode key
 	err = reCodeRedisClient.Rename(retrieveCode, changeRecodeBody.NewReCode).Err()
 	if err != nil {
 		log.Println("reCodeRedisClient Rename err", "old key", retrieveCode, "new key", changeRecodeBody.NewReCode)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"err_code": 10001,
+			"message":  common.Errors[10001],
+		})
+		return
 	}
+	// rename redis shadow key
+	err = reCodeRedisClient.Rename(common.SHADOWKEYPREFIX+retrieveCode, common.SHADOWKEYPREFIX+changeRecodeBody.NewReCode).Err()
+	if err != nil {
+		log.Println("reCodeRedisClient Rename shadow key err", "old key", common.SHADOWKEYPREFIX+retrieveCode, "new key", common.SHADOWKEYPREFIX+changeRecodeBody.NewReCode)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"err_code": 10001,
+			"message":  common.Errors[10001],
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
 	return
 }
 
