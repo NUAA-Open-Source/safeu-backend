@@ -199,13 +199,29 @@ func ChangeRecode(c *gin.Context) {
 			db.Model(&Item{}).Where("name = ? AND status = ? AND re_code = ?", value, common.UPLOAD_FINISHED, retrieveCode).Update(map[string]interface{}{"re_code": changeRecodeBody.NewReCode})
 		}
 		log.Println("Success Change ReCode", "Previous Recode", retrieveCode, "Now Recode", changeRecodeBody.NewReCode)
-		c.JSON(http.StatusOK, gin.H{
-			"message": "ok",
-		})
+		// rename redis recode key
 		err := reCodeRedisClient.Rename(retrieveCode, changeRecodeBody.NewReCode).Err()
 		if err != nil {
 			log.Println("reCodeRedisClient Rename err", "old key", retrieveCode, "new key", changeRecodeBody.NewReCode)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"err_code": 10001,
+				"message":  common.Errors[10001],
+			})
+			return
 		}
+		// rename redis shadow key
+		err = reCodeRedisClient.Rename(common.SHADOWKEYPREFIX+retrieveCode, common.SHADOWKEYPREFIX+changeRecodeBody.NewReCode).Err()
+		if err != nil {
+			log.Println("reCodeRedisClient Rename shadow key err", "old key", common.SHADOWKEYPREFIX+retrieveCode, "new key", common.SHADOWKEYPREFIX+changeRecodeBody.NewReCode)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"err_code": 10001,
+				"message":  common.Errors[10001],
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ok",
+		})
 		return
 	}
 
