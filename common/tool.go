@@ -70,3 +70,12 @@ func SetShadowKeyInRedis(key string, value interface{}, expiration time.Duration
 	}
 	return nil
 }
+
+func ReplaceShadowKeyInRedis(key string, expiration time.Duration, client *redis.Client) error {
+	err = client.Expire(SHADOWKEYPREFIX+key, expiration).Err()
+	if err != nil {
+		log.Println(fmt.Sprintf("ReplaceShadowKeyInRedis key %s fail in shadowKey Set", key))
+		return err
+	}
+	return nil
+}
